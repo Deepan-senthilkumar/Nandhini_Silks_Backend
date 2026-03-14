@@ -45,15 +45,15 @@ Route::get('/mens', function() { return redirect()->route('category.show', 'mens
 Route::get('/kids', function() { return redirect()->route('category.show', 'kids'); });
 
 // Admin Routes
-Route::prefix('admin')->group(function () {
+Route::group(['prefix' => 'admin'], function () {
     // Guest Routes
-    Route::middleware('guest:admin')->group(function () {
+    Route::group(['middleware' => 'guest:admin'], function () {
         Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
         Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
     });
 
     // Authenticated Routes
-    Route::middleware('auth:admin')->group(function () {
+    Route::group(['middleware' => 'auth:admin'], function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
         

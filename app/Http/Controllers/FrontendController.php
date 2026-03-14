@@ -10,14 +10,14 @@ class FrontendController extends Controller
 {
     public function index()
     {
-        $featuredProducts = Product::where('is_featured', '=', true)->get();
+        $featuredProducts = Product::where('is_featured', '=', true, 'and')->get();
         return view('frontend.index', compact('featuredProducts'));
     }
 
     public function category($slug)
     {
-        $category = Category::where('slug', '=', $slug)->firstOrFail();
-        $products = Product::where('category_id', '=', $category->id)->paginate(12);
+        $category = Category::where('slug', '=', $slug, 'and')->firstOrFail();
+        $products = Product::where('category_id', '=', $category->id, 'and')->paginate(12);
         
         // Map slug to specific views if needed, or use a default
         $view = 'frontend.' . $slug;
@@ -30,9 +30,9 @@ class FrontendController extends Controller
 
     public function productShow($slug)
     {
-        $product = Product::with('category')->where('slug', '=', $slug)->firstOrFail();
-        $relatedProducts = Product::where('category_id', '=', $product->category_id)
-            ->where('id', '!=', $product->id)
+        $product = Product::with('category')->where('slug', '=', $slug, 'and')->firstOrFail();
+        $relatedProducts = Product::where('category_id', '=', $product->category_id, 'and')
+            ->where('id', '!=', $product->id, 'and')
             ->limit(4)
             ->get();
             
