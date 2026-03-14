@@ -1,0 +1,63 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\FrontendController;
+
+Route::get('/', [FrontendController::class, 'index'])->name('home');
+
+// Frontend Static Pages
+Route::get('/about', [FrontendController::class, 'about'])->name('about');
+Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
+Route::get('/cart', [FrontendController::class, 'cart'])->name('cart');
+Route::get('/checkout', [FrontendController::class, 'checkout'])->name('checkout');
+Route::get('/wishlist', [FrontendController::class, 'wishlist'])->name('wishlist');
+Route::get('/search', [FrontendController::class, 'search'])->name('search');
+
+// Policy Pages
+Route::get('/privacy-policy', [FrontendController::class, 'privacyPolicy'])->name('privacy-policy');
+Route::get('/terms-conditions', [FrontendController::class, 'termsConditions'])->name('terms');
+Route::get('/cancellation', [FrontendController::class, 'cancellation'])->name('cancellation');
+Route::get('/exchange-policy', [FrontendController::class, 'exchangePolicy'])->name('exchange-policy');
+Route::get('/shipping-policy', [FrontendController::class, 'shippingPolicy'])->name('shipping-policy');
+Route::get('/fabric-care', [FrontendController::class, 'fabricCare'])->name('fabric-care');
+
+// User Account Pages
+Route::get('/login', [FrontendController::class, 'userLogin'])->name('login');
+Route::get('/my-account', [FrontendController::class, 'myAccount'])->name('my-account');
+Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
+Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
+Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
+Route::get('/my-reviews', [FrontendController::class, 'myReviews'])->name('my-reviews');
+Route::get('/order-confirmation', [FrontendController::class, 'orderConfirmation'])->name('order-confirmation');
+Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
+
+// Dynamic Products/Categories
+Route::get('/category/{slug}', [FrontendController::class, 'category'])->name('category.show');
+Route::get('/product/{slug}', [FrontendController::class, 'productShow'])->name('product.show');
+
+// Special Category Routes (to match existing links if needed)
+Route::get('/sarees', function() { return redirect()->route('category.show', 'sarees'); });
+Route::get('/women', function() { return redirect()->route('category.show', 'women'); });
+Route::get('/mens', function() { return redirect()->route('category.show', 'mens'); });
+Route::get('/kids', function() { return redirect()->route('category.show', 'kids'); });
+
+// Admin Routes
+Route::prefix('admin')->group(function () {
+    // Guest Routes
+    Route::middleware('guest:admin')->group(function () {
+        Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+        Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
+    });
+
+    // Authenticated Routes
+    Route::middleware('auth:admin')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+        Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+        
+        // Categories
+        Route::resource('categories', CategoryController::class)->names('admin.categories');
+    });
+});
