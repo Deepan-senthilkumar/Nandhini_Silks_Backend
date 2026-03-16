@@ -8,6 +8,8 @@ class Order extends Model
 {
     protected $fillable = [
         'user_id',
+        'coupon_id',
+        'coupon_code',
         'customer_name',
         'customer_email',
         'customer_phone',
@@ -33,5 +35,10 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function coupon()
+    {
+        return $this->belongsTo(Coupon::class);
     }
 }

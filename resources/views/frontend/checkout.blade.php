@@ -157,14 +157,35 @@
 @section('content')
 <main class="cart-page" style="background: #fffcf0; padding-top: 40px;">
     <div class="page-shell">
-        
-
         <div class="checkout-grid" style="display: grid; grid-template-columns: 1fr 350px; gap: 40px;">
-            <div class="checkout-main">
+            <form id="checkoutForm" method="POST" action="{{ route('checkout.place') }}" class="checkout-main">
+                @csrf
+                <input type="hidden" name="payment_method" value="razorpay">
                 <!-- Step 1: Delivery Address -->
                 <div id="step-1" class="checkout-step-content">
                     <div class="checkout-section">
                         <h2 class="checkout-title">Shipping Address</h2>
+                        <div class="review-section-box" style="margin-bottom: 25px;">
+                            <div class="review-title">Contact Details</div>
+                            <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label class="form-label" style="display: block; font-size: 12px; color: #999; margin-bottom: 5px;">Full Name</label>
+                                    <input type="text" name="customer_name" required class="form-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;" value="{{ old('customer_name') }}" placeholder="Name">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" style="display: block; font-size: 12px; color: #999; margin-bottom: 5px;">Email</label>
+                                    <input type="email" name="customer_email" required class="form-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;" value="{{ old('customer_email') }}" placeholder="Email">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" style="display: block; font-size: 12px; color: #999; margin-bottom: 5px;">Phone</label>
+                                    <input type="tel" name="customer_phone" required class="form-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;" value="{{ old('customer_phone') }}" placeholder="Phone">
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="form-label" style="display: block; font-size: 12px; color: #999; margin-bottom: 5px;">Delivery Address</label>
+                                    <textarea name="delivery_address" id="delivery_address" required class="form-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; min-height: 80px;" placeholder="Full address">{{ old('delivery_address') }}</textarea>
+                                </div>
+                            </div>
+                        </div>
                         <div class="saved-addresses" id="addressList" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px;">
                             <div class="address-card active" onclick="selectAddress(this)">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -193,7 +214,7 @@
                         </div>
 
                         <div style="margin-bottom: 30px; padding-top: 20px; border-top: 1px dashed #ddd;">
-                            <button class="btn-step btn-prev" id="toggleNewAddr" style="margin-bottom: 25px; padding: 10px 25px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                            <button type="button" class="btn-step btn-prev" id="toggleNewAddr" style="margin-bottom: 25px; padding: 10px 25px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
                                 <span style="font-size: 18px;">+</span> Add New Address
                             </button>
                             
@@ -208,13 +229,13 @@
                                     <div class="form-group"><label class="form-label" style="display: block; font-size: 12px; color: #999; margin-bottom: 5px;">State</label><input type="text" id="state" class="form-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></div>
                                 </div>
                                 <div style="margin-top: 20px; display: flex; gap: 10px;">
-                                    <button class="btn-step btn-next" style="padding: 10px 25px;" onclick="saveAddress()">Save Address</button>
-                                    <button class="btn-step btn-prev" onclick="hideAddressForm()" style="padding: 10px 25px;">Cancel</button>
+                                    <button type="button" class="btn-step btn-next" style="padding: 10px 25px;" onclick="saveAddress()">Save Address</button>
+                                    <button type="button" class="btn-step btn-prev" onclick="hideAddressForm()" style="padding: 10px 25px;">Cancel</button>
                                 </div>
                             </div>
                         </div>
                         <div style="display: flex; justify-content: flex-end;">
-                            <button class="btn-step btn-next" onclick="goToStep(2)">Review Order</button>
+                            <button type="button" class="btn-step btn-next" onclick="goToStep(2)">Review Order</button>
                         </div>
                     </div>
                 </div>
@@ -237,13 +258,21 @@
                         <div class="review-section-box">
                             <div class="review-title">Items & Delivery</div>
                             <div class="review-items-list">
-                                <div style="display: flex; gap: 15px; margin-bottom: 0;">
-                                    <img src="{{ asset('images/product_detail.png') }}" width="60" height="75" style="object-fit: cover; border-radius: 4px;">
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 600;">Royal Gold Silk Saree</div>
-                                        <div style="font-size: 12px; color: #666;">Qty: 1 | Color: Gold</div>
-                                        <div style="font-weight: 700; color: var(--pink); margin-top: 5px;">₹7,490</div>
-                                    </div>
+    @if(isset($items) && count($items) > 0)
+        @foreach ($items as $item)
+            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <img src="{{ $item['image_url'] }}" width="60" height="75" style="object-fit: cover; border-radius: 4px;">
+                <div style="flex: 1;">
+                    <div style="font-weight: 600;">{{ $item['name'] }}</div>
+                    <div style="font-size: 12px; color: #666;">Qty: {{ $item['quantity'] }}</div>
+                    <div style="font-weight: 700; color: var(--pink); margin-top: 5px;">&#8377;{{ number_format($item['price'], 0) }}</div>
+                </div>
+            </div>
+        @endforeach
+    @else
+        <div style="font-size: 13px; color: #666;">No items in cart.</div>
+    @endif
+</div>
                                 </div>
                             </div>
                             <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #f5f5f5; font-size: 13px; color: #666;">
@@ -252,8 +281,8 @@
                         </div>
 
                         <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-                            <button class="btn-step btn-prev" onclick="goToStep(1)">Back</button>
-                            <button class="btn-step btn-next" onclick="goToStep(3)">Continue to Payment</button>
+                            <button type="button" class="btn-step btn-prev" onclick="goToStep(1)">Back</button>
+                            <button type="button" class="btn-step btn-next" onclick="goToStep(3)">Continue to Payment</button>
                         </div>
                     </div>
                 </div>
@@ -280,32 +309,50 @@
                         </div>
 
                         <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-                            <button class="btn-step btn-prev" onclick="goToStep(2)">Back</button>
-                            <button class="btn-step btn-next" style="padding: 12px 60px; font-size: 18px;" onclick="placeOrder()">Pay & Place Order</button>
+                            <button type="button" class="btn-step btn-prev" onclick="goToStep(2)">Back</button>
+                            <button type="button" class="btn-step btn-next" style="padding: 12px 60px; font-size: 18px;" onclick="placeOrder()">Pay & Place Order</button>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
 
             <!-- Summary Side -->
             <aside class="cart-summary">
                 <h2 class="summary-title" style="margin-bottom: 15px;">Order Summary</h2>
                 
-                <div class="summary-row"><span>Subtotal (2 items)</span><span>₹15,990</span></div>
+                <div class="summary-row"><span>Subtotal ({{ $itemCount ?? 0 }} items)</span><span>&#8377;{{ number_format($subTotal ?? 0, 0) }}</span></div>
                 <div class="summary-row"><span>Delivery Charges</span><span style="color: #2e7d32;">FREE</span></div>
-                <div class="summary-row"><span>GST (5%)</span><span>₹800</span></div>
+                <div class="summary-row"><span>GST (5%)</span><span>&#8377;{{ number_format($tax ?? 0, 0) }}</span></div>
+                <div class="summary-row" style="color: #2e7d32; font-weight: 600;"><span>Coupon Discount</span><span>-&#8377;{{ number_format($discount ?? 0, 0) }}</span></div>
                 
                 <div style="margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px;">
                     <div style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">Apply Coupon</div>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" placeholder="Enter code" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
-                        <button style="padding: 8px 15px; background: #333; color: #fff; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Apply</button>
-                    </div>
+                    @if(session('success'))
+                        <div style="font-size: 12px; color: #2e7d32; margin-bottom: 8px;">{{ session('success') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div style="font-size: 12px; color: #c62828; margin-bottom: 8px;">{{ session('error') }}</div>
+                    @endif
+                    @error('code')
+                        <div style="font-size: 12px; color: #c62828; margin-bottom: 8px;">{{ $message }}</div>
+                    @enderror
+
+                    @if($coupon)
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            <div style="font-size: 12px; font-weight: 600; color: #2e7d32;">Applied: {{ $coupon->code }}</div>
+                            <button type="submit" form="checkoutForm" formaction="{{ route('cart.coupon.remove') }}" formnovalidate style="padding: 6px 12px; background: #eee; color: #333; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Remove</button>
+                        </div>
+                    @else
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" name="code" form="checkoutForm" placeholder="Enter code" value="{{ old('code') }}" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+                            <button type="submit" form="checkoutForm" formaction="{{ route('cart.coupon.apply') }}" formnovalidate style="padding: 8px 15px; background: #333; color: #fff; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Apply</button>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="summary-total" style="border-top: 2px solid #eee; padding-top: 15px; font-size: 22px;">
                     <span>Grand Total</span>
-                    <span>₹16,790</span>
+                    <span>&#8377;{{ number_format($grandTotal ?? 0, 0) }}</span>
                 </div>
 
                 <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
@@ -452,6 +499,8 @@
         const agreed = document.getElementById('termsAgree').checked;
         const group = document.getElementById('termsGroup');
         const error = document.getElementById('termsErrorMsg');
+        const form = document.getElementById('checkoutForm');
+        const addressInput = document.getElementById('delivery_address');
         
         if (!agreed) {
             group.classList.add('has-error');
@@ -462,8 +511,21 @@
             error.style.opacity = '0';
         }
         
-        // Final Place Order Logic
-        window.location.href = "{{ url('order-confirmation') }}";
+        if (addressInput && addressInput.value.trim() === '') {
+            const reviewAddr = document.getElementById('reviewAddr');
+            if (reviewAddr) {
+                addressInput.value = reviewAddr.innerText.replace(/\s+/g, ' ').trim();
+            }
+        }
+
+        if (form) {
+            form.submit();
+        }
     }
 </script>
 @endpush
+
+
+
+
+

@@ -58,8 +58,8 @@
                     </div>
 
                     <div class="stock-status" style="margin-top: 15px;">
-                        @if($product->stock > 0)
-                            <span class="stock-badge stock-in">● In Stock ({{ $product->stock }} left)</span>
+                        @if($product->stock_quantity > 0)
+                            <span class="stock-badge stock-in">● In Stock ({{ $product->stock_quantity }} left)</span>
                         @else
                             <span class="stock-badge stock-out" style="color: #666;">● Out of Stock</span>
                         @endif
@@ -69,24 +69,34 @@
                         {!! Str::limit(strip_tags($product->description), 250) !!}
                     </div>
 
-                    <!-- Attributes: Color (Mocked) -->
-                    <div class="attribute-section" style="margin-top: 25px;">
-                        <h3 class="attribute-title" style="font-size: 14px; margin-bottom: 10px; text-transform: uppercase; color: #888;">Select Color:</h3>
-                        <div class="swatch-container" style="display: flex; gap: 10px;">
-                            <div class="color-swatch active" style="background: #A91B43; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer;" title="Maroon"></div>
-                            <div class="color-swatch" style="background: #D4AF37; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer;" title="Gold"></div>
-                            <div class="color-swatch" style="background: #000080; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer;" title="Navy"></div>
-                        </div>
-                    </div>
-
-                    <!-- Attributes: Size/Type (Mocked) -->
-                    <div class="attribute-section" style="margin-top: 20px;">
-                        <h3 class="attribute-title" style="font-size: 14px; margin-bottom: 10px; text-transform: uppercase; color: #888;">Select Size / Length:</h3>
-                        <div class="swatch-container" style="display: flex; gap: 10px;">
-                            <button class="size-btn active" style="padding: 8px 15px; border: 1px solid #A91B43; background: #fff; color: #A91B43; border-radius: 5px; cursor: pointer;">Standard (6.2m)</button>
-                            <button class="size-btn" style="padding: 8px 15px; border: 1px solid #ddd; background: #fff; color: #666; border-radius: 5px; cursor: pointer;">Long (7.5m)</button>
-                        </div>
-                    </div>
+                    @if(!empty($attributeGroups))
+                        @foreach($attributeGroups as $group)
+                            <div class="attribute-section" style="margin-top: 20px;">
+                                <h3 class="attribute-title" style="font-size: 14px; margin-bottom: 10px; text-transform: uppercase; color: #888;">
+                                    {{ $group['attribute']->name }}
+                                </h3>
+                                <div class="swatch-container" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    @foreach($group['values'] as $value)
+                                        @php
+                                            $swatch = $value->swatch_value;
+                                            $isColor = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
+                                        @endphp
+                                        @if($swatch)
+                                            @if($isColor)
+                                                <div class="color-swatch" style="background: {{ $swatch }}; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer;" title="{{ $value->name }}"></div>
+                                            @else
+                                                <div class="color-swatch" style="background-image: url('{{ asset('uploads/' . $swatch) }}'); background-size: cover; background-position: center; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer;" title="{{ $value->name }}"></div>
+                                            @endif
+                                        @else
+                                            <button type="button" class="size-btn" style="padding: 8px 15px; border: 1px solid #ddd; background: #fff; color: #666; border-radius: 5px; cursor: pointer;">
+                                                {{ $value->name }}
+                                            </button>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
 
                     <!-- Quantity / Actions -->
                     <div class="product-actions-group" style="margin-top: 30px;">
@@ -96,17 +106,19 @@
                             <button class="qty-btn" onclick="updateQty(1)" style="padding: 5px 15px; background: none; border: none; font-size: 20px; cursor: pointer;">+</button>
                         </div>
 
-                        <div class="product-actions" style="display: flex; gap: 15px; align-items: center;">
-                            <button class="btn-add-cart" style="flex: 1; background: #A91B43; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                                Add to Cart
-                            </button>
-                            <button class="btn-buy-now" style="flex: 1; background: #333; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                                Buy It Now
-                            </button>
-                            <button class="btn-wishlist-detail" aria-label="Add to Wishlist" style="background: #fdf2f5; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
-                                <img src="{{ asset('images/favorite.svg') }}" alt="" width="24">
-                            </button>
-                        </div>
+                        <form class="product-actions" method="POST" action="{{ route('cart.add', $product->id) }}" style="display: flex; gap: 15px; align-items: center;">
+    @csrf
+    <input type="hidden" name="quantity" id="qtyInput" value="1">
+    <button type="submit" name="action" value="cart" class="btn-add-cart" style="flex: 1; background: #A91B43; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+        Add to Cart
+    </button>
+    <button type="submit" name="action" value="checkout" class="btn-buy-now" style="flex: 1; background: #333; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+        Buy It Now
+    </button>
+    <button type="button" class="btn-wishlist-detail" aria-label="Add to Wishlist" style="background: #fdf2f5; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
+        <img src="{{ asset('images/favorite.svg') }}" alt="" width="24">
+    </button>
+</form>
                     </div>
 
                     <div class="share-section" style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
@@ -241,10 +253,12 @@
         }
         function updateQty(val) {
             const input = document.getElementById('qtyDisp');
+            const hiddenInput = document.getElementById('qtyInput');
             let current = parseInt(input.value);
             current += val;
             if (current < 1) current = 1;
             input.value = current;
+            if (hiddenInput) hiddenInput.value = current;
         }
         function switchTab(e, tabId) {
             const btns = document.querySelectorAll('.tab-btn');
@@ -256,3 +270,4 @@
         }
     </script>
 @endpush
+
