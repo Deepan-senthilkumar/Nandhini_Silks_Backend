@@ -11,6 +11,7 @@ use App\Models\AttributeValue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Order;
 use App\Models\ProductReview;
 
 use App\Models\Banner;
@@ -104,6 +105,17 @@ class FrontendController extends Controller
     public function productShow($slug)
     {
         $product = Product::with('category')->where('slug', '=', $slug)->where('status', '=', 1)->firstOrFail();
+        
+        // Handle Recently Viewed
+        $viewedIds = session()->get('recently_viewed', []);
+        if (($key = array_search($product->id, $viewedIds)) !== false) unset($viewedIds[$key]);
+        array_unshift($viewedIds, $product->id);
+        $viewedIds = array_slice($viewedIds, 0, 10);
+        session()->put('recently_viewed', $viewedIds);
+        
+        $recentlyViewed = Product::whereIn('id', array_diff($viewedIds, [$product->id]))
+            ->where('status', 1)->limit(4)->get();
+
         $relatedProducts = Product::where('category_id', '=', $product->category_id)
             ->where('id', '!=', $product->id)
             ->where('status', '=', 1)
@@ -113,7 +125,7 @@ class FrontendController extends Controller
         $attributeGroups = $this->buildAttributeGroups($product);
         $inWishlist = in_array($product->id, session()->get('wishlist', []));
             
-        return view('frontend.product-detail', compact('product', 'relatedProducts', 'attributeGroups', 'inWishlist'));
+        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist'));
     }
 
     public function about() { return view('frontend.about'); }
@@ -180,7 +192,19 @@ class FrontendController extends Controller
 
         return view('frontend.my-reviews', compact('publishedReviews', 'pendingReviews')); 
     }
-    public function orderDetail() { return view('frontend.order-detail'); }
+    public function orderDetail(Request $request)
+    {
+        $order = Order::with(['items', 'coupon'])
+            ->where('id', $request->query('id'))
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (!$order) {
+            return redirect()->route('my-orders')->with('error', 'Order not found.');
+        }
+
+        return view('frontend.order-detail', compact('order'));
+    }
 
     public function updateProfile(Request $request)
     {

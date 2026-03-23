@@ -31,4 +31,12 @@ class ProductVariant extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function getDiscountPercentAttribute()
+    {
+        if ($this->price > 0 && $this->sale_price && $this->sale_price < $this->price) {
+            return round((($this->price - $this->sale_price) / $this->price) * 100, 2);
+        }
+        return 0;
+    }
 }

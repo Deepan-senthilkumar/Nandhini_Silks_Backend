@@ -108,6 +108,11 @@
                                     <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-24 text-center">Price</th>
                                     <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-20 text-center">Stock</th>
                                     <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-24 text-center">SKU</th>
+                                    <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-12 text-center">
+                                        <button type="button" id="resetVariantMatrix" class="text-slate-400 hover:text-[#a91b43] transition-colors" title="Reset Matrix (Restore Deleted Rows)">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="variantMatrixBody">
@@ -368,6 +373,11 @@
         <td class="px-3 py-3 text-center">
             <input type="text" name="v_sku[]" class="w-full bg-slate-50/50 border-slate-200 hover:bg-white focus:bg-white border rounded px-2 py-1 outline-none text-center text-[10px]" placeholder="SKU">
         </td>
+        <td class="px-3 py-3 text-center">
+            <button type="button" class="text-rose-400 hover:text-rose-600 remove-variant-row transition-all" title="Remove this combination">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </td>
     </tr>
 </template>
 @endsection
@@ -380,6 +390,22 @@ $(document).ready(function () {
     $('.select2-searchable, #category_id, #sub_category_id, #child_category_id, #tax_class_id').select2({
         width: '100%',
         placeholder: "Select or search..."
+    });
+
+    // Tracking for manually removed variant rows
+    var removedCombinations = new Set();
+    
+    $(document).on('click', '.remove-variant-row', function() {
+        var combId = $(this).closest('tr').find('.variant-comb-input').val();
+        removedCombinations.add(combId);
+        generateVariantMatrix();
+    });
+
+    $(document).on('click', '#resetVariantMatrix', function() {
+        if(confirm("Restore all previously removed variant rows?")) {
+            removedCombinations.clear();
+            generateVariantMatrix();
+        }
     });
 
     // ── General images preview ─────────────────────────────────────────
@@ -464,11 +490,15 @@ $(document).ready(function () {
         $('#variantMatrixContainer').removeClass('hidden');
 
         var template = document.getElementById('variantRowTemplate').content;
+        var activeRowIndex = 0;
 
-        combinations.forEach(function(comb, rowIndex) {
+        combinations.forEach(function(comb) {
             var names = comb.map(v => v.name).join(' - ');
             var ids   = comb.map(v => v.id).join(',');
             
+            // Skip manually removed combinations
+            if(removedCombinations.has(ids)) return;
+
             var $row;
             if(existingRows[ids]) {
                 $row = existingRows[ids];
@@ -487,8 +517,9 @@ $(document).ready(function () {
                 $row.attr('data-color-name', colorVal.name);
             }
             
-            // Critical: Re-index hidden image inputs correctly so backend receives v_images[0], v_images[1], etc.
-            $row.find('.hidden-v-file').attr('name', 'v_images[' + rowIndex + '][]');
+            // Critical: Re-index hidden image inputs correctly using activeRowIndex
+            $row.find('.hidden-v-file').attr('name', 'v_images[' + activeRowIndex + '][]');
+            activeRowIndex++;
 
             $('#variantMatrixBody').append($row);
         });

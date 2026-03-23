@@ -192,28 +192,36 @@
 
                     <h1 class="product-title-detail" style="margin: 0 0 5px; line-height: 1.1; font-size: 32px; font-weight: 700; color: #1a1a1a;">{{ $product->name }}</h1>
 
-                    <div class="product-rating" style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <div class="stars" style="line-height: 1; color: #FFB800; font-size: 13px;">★★★★★</div>
-                        <span style="font-size: 12px; color: #888; font-weight: 500;">4.8 (12 Reviews)</span>
-                                        <div class="product-price-section" style="margin-bottom: 4px; display: flex; align-items: baseline; line-height: 1;">
-                        <span class="current-price" id="displayPrice" style="font-size: 28px; font-weight: 800; color: #A91B43;">₹{{ number_format($product->price, 0) }}</span>
-                        @if($product->regular_price > $product->price)
-                            <span class="old-price" id="displayRegularPrice" style="text-decoration: line-through; color: #bbb; margin-left: 10px; font-size: 16px;">₹{{ number_format($product->regular_price, 0) }}</span>
-                            <span class="discount-badge" id="displayDiscount" style="background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; margin-left: 10px; text-transform: uppercase;">{{ $product->discount_percent }}% OFF</span>
-                        @endif
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
+                        <div class="product-rating flex items-center gap-2">
+                            <div class="stars flex" style="line-height: 1; color: #FFB800; font-size: 12px;">
+                                @for($i=1; $i<=5; $i++)
+                                    <i class="{{ $i <= round($product->average_rating) ? 'fas' : 'far' }} fa-star"></i>
+                                @endfor
+                            </div>
+                            <span style="font-size: 11px; color: #888; font-weight: 500;">{{ number_format($product->average_rating, 1) }} ({{ $product->reviews_count }} Reviews)</span>
+                        </div>
+                        <div class="product-price-section flex items-baseline gap-2">
+                            <span class="current-price" id="displayPrice" style="font-size: 24px; font-weight: 800; color: #A91B43;">₹{{ number_format($product->price, 0) }}</span>
+                            @if($product->regular_price > $product->price)
+                                <span class="old-price" id="displayRegularPrice" style="text-decoration: line-through; color: #bbb; font-size: 14px;">₹{{ number_format($product->regular_price, 0) }}</span>
+                                <span class="discount-badge" id="displayDiscount" style="background: #e74c3c; color: #fff; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase;">{{ $product->discount_percent }}% OFF</span>
+                            @endif
+                        </div>
+                        <div class="stock-status">
+                            <span id="stockStatus" class="stock-badge {{ $product->stock_quantity > 0 ? 'stock-in' : 'stock-out' }}" 
+                                   style="font-size: 9px; font-weight: 700; {{ $product->stock_quantity > 0 ? 'color: #2ecc71; background: #c0fbe15e; border: 1px solid #c6f6d5;' : 'color: #e74c3c; background: #fff5f5; border: 1px solid #fed7d7;' }} padding: 2px 6px; border-radius: 3px; text-transform: uppercase;">
+                                {{ $product->stock_quantity > 0 ? 'IN STOCK' : 'OUT OF STOCK' }}
+                            </span>
+                        </div>
                     </div>
-                    <p style="font-size: 11px; color: #888; margin-bottom: 15px; font-weight: 500;">(Inclusive of all taxes)</p>
+                    <p style="font-size: 10px; color: #999; margin-bottom: 8px; font-weight: 500; margin-top: -5px;">(Inclusive of all taxes)</p>
 
-                    <div class="stock-status" style="margin-bottom: 15px;">
-                        <span id="stockStatus" class="stock-badge {{ $product->stock_quantity > 0 ? 'stock-in' : 'stock-out' }}" 
-                              style="font-size: 12px; font-weight: 600; {{ $product->stock_quantity > 0 ? 'color: #2ecc71; background: #f0fff4; border: 1px solid #c6f6d5;' : 'color: #e74c3c; background: #fff5f5; border: 1px solid #fed7d7;' }} padding: 4px 10px; border-radius: 4px;">
-                            {{ $product->stock_quantity > 0 ? 'IN STOCK' : 'OUT OF STOCK' }}
-                        </span>
-                    </div>          </div>
-
+                    @if($product->description)
                     <div class="product-description-short" style="margin-bottom: 0px; color: #666; line-height: 1.5; font-size: 14px; max-width: 500px;">
                         {!! Str::limit(strip_tags($product->description), 150) !!}
                     </div>
+                    @endif
 
                     <form class="product-actions" method="POST" action="{{ route('cart.add', $product->id) }}" id="pdpForm" style="display: block; width: 100%;">
                         @csrf
@@ -372,7 +380,37 @@
                 </div>
 
                 <div class="tab-pane" id="tabReviews" style="display: none; padding-top: 30px;">
-                    <p>No reviews yet for this product.</p>
+                    <div class="reviews-container">
+                        @if($product->reviews()->count() > 0)
+                            <div class="space-y-6">
+                                @foreach($product->reviews as $review)
+                                    <div class="review-item border-b border-gray-100 pb-6">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <div class="text-[#FFB800] text-sm">
+                                                @for($i=1; $i<=5; $i++)
+                                                    <i class="{{ $i <= $review->stars ? 'fas' : 'far' }} fa-star"></i>
+                                                @endfor
+                                            </div>
+                                            <span class="font-bold text-sm text-gray-800">{{ $review->user->name ?? 'User' }}</span>
+                                            <span class="text-xs text-gray-400">{{ $review->created_at->format('M d, Y') }}</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 leading-relaxed">{{ $review->review }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-16 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4">
+                                    <i class="far fa-comments text-2xl text-[#a91b43]"></i>
+                                </div>
+                                <h4 class="text-sm font-bold text-slate-800 mb-1">No reviews yet</h4>
+                                <p class="text-xs text-slate-500 mb-6">Be the first to share your thoughts about this product!</p>
+                                <button class="px-6 py-2.5 bg-[#a91b43] text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-[#940437] transition-all shadow-md active:scale-95" onclick="alert('Review form coming soon!')">
+                                    Write a Review
+                                </button>
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="tab-pane" id="tabShipping" style="display: none; padding-top: 30px;">
@@ -418,36 +456,26 @@
                         <div class="swiper-button-prev related-prev"></div>
                     </div>
                 </section>
-@endif
+            @endif
 
-            <!-- Recently Viewed Section (Mocked) -->
-            <section class="recently-viewed" style="margin-top: 60px; margin-bottom: 60px; overflow: hidden;">
-                <h2 style="font-size: 32px; color: #ad8b4e; margin-bottom: 40px; font-weight: 600; text-align: center;">
-                    Recently Viewed</h2>
-                <div class="swiper-wrap-outer" style="position: relative; padding: 0 60px;">
-                    <div class="swiper recently-swiper" style="padding: 10px 5px;">
-                        <div class="swiper-wrapper">
-                            @for($i = 0; $i < 6; $i++) {{-- Mock 6 items --}}
-                                <div class="swiper-slide">
-                                    <article class="product-card-v2" style="height: 100%;">
-                                        <div class="product-image-v2">
-                                            <img src="{{ asset('images/pro'.(($i%4)+1).'.png') }}" alt="Silk Saree" onerror="this.src='{{ asset('images/pro1.png') }}'">
-                                        </div>
-                                        <div class="product-info-v2">
-                                            <h3 class="product-name-v2">Pure Silk Saree</h3>
-                                            <p class="product-price-v2">₹4,290</p>
-                                        </div>
-                                    </article>
-                                </div>
-                            @endfor
-                        </div>
+            {{-- Recently Viewed Section --}}
+            @if(isset($recentlyViewed) && count($recentlyViewed) > 0)
+                <section class="recently-viewed" style="margin-top: 60px; margin-bottom: 60px; overflow: hidden;">
+                    <h2 style="font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 30px; text-align: left;">
+                        Recently Viewed
+                        <div style="width: 40px; height: 3px; background: #a91b43; margin-top: 8px;"></div>
+                    </h2>
+                    
+                    <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px;">
+                        @foreach($recentlyViewed as $recent)
+                            @include('frontend.partials.product-card', ['product' => $recent])
+                        @endforeach
                     </div>
-                    <div class="swiper-button-next recently-next"></div>
-                    <div class="swiper-button-prev recently-prev"></div>
-                </div>
-            </section>
+                </section>
+            @endif
         </div>
     </main>
+</div>
 @endsection
 
 @push('scripts')
@@ -467,6 +495,11 @@
             input.value = current;
             if (hiddenInput) hiddenInput.value = current;
         }
+        const productVariants = {!! json_encode($product->product_variants) !!};
+        const basePrice = {{ $product->price }};
+        const baseRegularPrice = {{ $product->regular_price ?: $product->price }};
+        const baseSku = "{{ $product->sku }}";
+
         function selectAttribute(element) {
             const attrId = element.getAttribute('data-attr-id');
             const valueId = element.getAttribute('data-value-id');
@@ -487,14 +520,85 @@
                 updateGallery(valueId);
             }
 
-            // Sync Variants [PERFECT CONCEPT]
+            // Sync Variants and Availability
+            updateOptionsAvailability();
             checkVariant();
         }
 
-        const productVariants = {!! json_encode($product->product_variants) !!};
-        const basePrice = {{ $product->price }};
-        const baseRegularPrice = {{ $product->regular_price ?: $product->price }};
-        const baseSku = "{{ $product->sku }}";
+        function updateOptionsAvailability() {
+            const allSections = document.querySelectorAll('.attribute-section');
+            const selectedAttrs = {};
+            
+            // Collect currently selected attributes
+            document.querySelectorAll('input[id^="attr_"]').forEach(input => {
+                const attrId = input.id.replace('attr_', '');
+                if(input.value) selectedAttrs[attrId] = parseInt(input.value);
+            });
+
+            allSections.forEach(section => {
+                const sectionAttrId = section.querySelector('input[id^="attr_"]').id.replace('attr_', '');
+                const options = section.querySelectorAll('.attribute-option');
+
+                options.forEach(opt => {
+                    const valueId = parseInt(opt.getAttribute('data-value-id'));
+                    
+                    // Assume we selected this option, can we find ANY variant that matches it 
+                    // COMBINED with other currently selected attributes?
+                    let testSelection = {...selectedAttrs};
+                    testSelection[sectionAttrId] = valueId;
+
+                    let isAvailable = productVariants.some(v => {
+                        if(!v.combination) return false;
+                        // Combination is usually { "attr_id": [val_id] }
+                        let vValues = Object.entries(v.combination).map(([aid, vids]) => vids[0]);
+                        
+                        // Check if this variant matches ALL our testSelection criteria
+                        return Object.entries(testSelection).every(([aid, vid]) => {
+                           // If the variant doesn't even have this attribute, it's not a match for our specific selection
+                           if(!v.combination[aid]) return false;
+                           return v.combination[aid].includes(vid);
+                        });
+                    });
+
+                    if(isAvailable) {
+                        opt.style.opacity = '1';
+                        opt.style.pointerEvents = 'auto';
+                        opt.classList.remove('unavailable');
+                    } else {
+                        opt.style.opacity = '0.3';
+                        opt.style.pointerEvents = 'none'; // Optional: disable clicking
+                        opt.classList.add('unavailable');
+                        // If it's the currently active one but now unavailable, mark it
+                        if(opt.classList.contains('active')) {
+                           // opt.classList.remove('active');
+                        }
+                    }
+                });
+            });
+        }
+
+        function updatePriceDisplay(sale, regular) {
+            document.getElementById('displayPrice').innerText = '₹' + new Intl.NumberFormat().format(sale);
+            const regEl = document.getElementById('displayRegularPrice');
+            const discEl = document.getElementById('displayDiscount');
+            
+            if(regEl && regular > sale) {
+                regEl.innerText = '₹' + new Intl.NumberFormat().format(regular);
+                regEl.style.display = 'inline';
+                if(discEl) {
+                    let pct = Math.round(((regular - sale) / regular) * 100);
+                    if(pct > 0) {
+                        discEl.innerText = pct + '% OFF';
+                        discEl.style.display = 'inline';
+                    } else {
+                        discEl.style.display = 'none';
+                    }
+                }
+            } else if(regEl) {
+                regEl.style.display = 'none';
+                if(discEl) discEl.style.display = 'none';
+            }
+        }
 
         function checkVariant() {
             let selectedAttrs = [];
@@ -510,7 +614,12 @@
             });
 
             if(matched) {
-                updatePriceDisplay(matched.price || basePrice, matched.sale_price || matched.price || basePrice);
+                // If variant has only one price column, assume it's the 'Sale price' 
+                // and compare with Main Regular Price or its own if available
+                let vSale = parseFloat(matched.sale_price || matched.price || basePrice);
+                let vRegular = parseFloat(matched.price && matched.sale_price && matched.price > matched.sale_price ? matched.price : baseRegularPrice);
+                
+                updatePriceDisplay(vSale, vRegular);
                 document.querySelector('.product-sku').innerText = matched.sku || baseSku;
                 updateStockStatus(matched.stock_quantity);
                 
@@ -524,23 +633,17 @@
             }
         }
 
-        function updatePriceDisplay(sale, regular) {
-            document.getElementById('displayPrice').innerText = '₹' + new Intl.NumberFormat().format(sale);
-            const regEl = document.getElementById('displayRegularPrice');
-            const discEl = document.getElementById('displayDiscount');
-            if(regEl && regular > sale) {
-                regEl.innerText = '₹' + new Intl.NumberFormat().format(regular);
-                regEl.style.display = 'inline';
-                if(discEl) {
-                    let pct = Math.round(((regular - sale) / regular) * 100);
-                    discEl.innerText = pct + '% OFF';
-                    discEl.style.display = 'inline';
+        window.onload = function() {
+            // Auto-select first option for each attribute section
+            document.querySelectorAll('.attribute-section').forEach(section => {
+                const firstOption = section.querySelector('.attribute-option:not(.unavailable)');
+                if (firstOption) {
+                    selectAttribute(firstOption);
                 }
-            } else if(regEl) {
-                regEl.style.display = 'none';
-                if(discEl) discEl.style.display = 'none';
-            }
-        }
+            });
+            // Initial check
+            checkVariant();
+        };
 
         function updateStockStatus(qty) {
             const el = document.getElementById('stockStatus');
@@ -560,22 +663,16 @@
             let firstFound = null;
             let countVisible = 0;
 
+            // First pass: try to find exact matches
             thumbs.forEach(t => {
                 const thumbColorId = t.getAttribute('data-color-id');
                 const thumbVariantId = t.getAttribute('data-variant-id');
                 
                 let show = false;
-                if(variantId) {
-                    // Show variant-specific images ONLY
-                    if(thumbVariantId == variantId) show = true;
-                } else if(colorId) {
-                    // Show color-specific OR general images
-                    if(!thumbColorId || thumbColorId === 'null' || thumbColorId == colorId) show = true;
-                    // Hide other variant-specific images if no variantId
-                    if(thumbVariantId) show = false; 
-                } else {
-                    // General view: show images with no color/variant ID
-                    if(!thumbColorId && !thumbVariantId) show = true;
+                if(variantId && thumbVariantId == variantId) {
+                    show = true;
+                } else if(!variantId && colorId && (thumbColorId == colorId)) {
+                    show = true;
                 }
 
                 if(show) {
@@ -586,6 +683,21 @@
                     t.style.display = 'none';
                 }
             });
+
+            // Fallback: If no specific images found, show general images
+            if(countVisible === 0) {
+                thumbs.forEach(t => {
+                    const thumbColorId = t.getAttribute('data-color-id');
+                    const thumbVariantId = t.getAttribute('data-variant-id');
+                    
+                    // Show images that aren't tied to a specific color or variant
+                    if((!thumbColorId || thumbColorId === 'null') && !thumbVariantId) {
+                        t.style.display = 'block';
+                        if(!firstFound) firstFound = t;
+                        countVisible++;
+                    }
+                });
+            }
 
             if(firstFound) {
                 const img = firstFound.querySelector('img');

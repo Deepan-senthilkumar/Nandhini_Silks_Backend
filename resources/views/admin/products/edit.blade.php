@@ -118,6 +118,11 @@
                                     <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-24 text-center">Price</th>
                                     <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-20 text-center">Stock</th>
                                     <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-24 text-center">SKU</th>
+                                    <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-12 text-center">
+                                        <button type="button" id="resetVariantMatrix" class="text-slate-400 hover:text-[#a91b43] transition-colors" title="Reset Matrix (Restore Deleted Rows)">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="variantMatrixBody">
@@ -137,7 +142,7 @@
                                             <span class="font-bold text-slate-800 variant-name">{{ $names }}</span>
                                             <input type="hidden" name="variant_combinations[]" value="{{ $idsString }}" class="variant-comb-input">
                                             <input type="file" name="v_images[{{ $vIdx }}][]" multiple class="hidden-v-file hidden" accept="image/*">
-                                            <div class="existing-images-data hidden" data-images="{{ is_array($v->images) ? json_encode($v->images) : ($v->images ?: json_encode($v->image ? [$v->image] : [])) }}"></div>
+                                            <input type="hidden" name="v_existing_images[]" value="{{ is_array($v->images) ? json_encode($v->images) : ($v->images ?: json_encode($v->image ? [$v->image] : [])) }}" class="existing-images-input">
                                         </td>
                                         <td class="px-3 py-3">
                                             <input type="number" name="v_price[]" value="{{ $v->price }}" step="0.01" class="w-full bg-white border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#a91b43]" placeholder="₹">
@@ -408,6 +413,7 @@
         <td class="px-3 py-3">
             <span class="font-bold text-slate-800 variant-name"></span>
             <input type="hidden" name="variant_combinations[]" class="variant-comb-input">
+            <input type="hidden" name="v_existing_images[]" class="existing-images-input">
         </td>
         <td class="px-3 py-3 text-center">
             <input type="number" name="v_price[]" step="0.01" class="w-full bg-white border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#a91b43] text-center font-bold text-indigo-900" placeholder="₹">
@@ -417,6 +423,11 @@
         </td>
         <td class="px-3 py-3 text-center">
             <input type="text" name="v_sku[]" class="w-full bg-slate-50/50 border-slate-200 hover:bg-white focus:bg-white border rounded px-2 py-1 outline-none text-center text-[10px]" placeholder="SKU">
+        </td>
+        <td class="px-3 py-3 text-center">
+            <button type="button" class="text-rose-400 hover:text-rose-600 remove-variant-row transition-all" title="Remove this combination">
+                <i class="fas fa-trash-alt"></i>
+            </button>
         </td>
     </tr>
 </template>
@@ -430,6 +441,22 @@ $(document).ready(function () {
     $('.select2-searchable, #category_id, #sub_category_id, #child_category_id, #tax_class_id').select2({
         width: '100%',
         placeholder: "Search and select..."
+    });
+
+    // Tracking for manually removed variant rows
+    var removedCombinations = new Set();
+    
+    $(document).on('click', '.remove-variant-row', function() {
+        var combId = $(this).closest('tr').find('.variant-comb-input').val();
+        removedCombinations.add(combId);
+        generateVariantMatrix();
+    });
+
+    $(document).on('click', '#resetVariantMatrix', function() {
+        if(confirm("Restore all previously removed variant rows?")) {
+            removedCombinations.clear();
+            generateVariantMatrix();
+        }
     });
 
     // ── General images preview ─────────────────────────────────────────
@@ -516,11 +543,15 @@ $(document).ready(function () {
         $('#variantMatrixContainer').removeClass('hidden');
 
         var template = document.getElementById('variantRowTemplate').content;
+        var activeRowIndex = 0;
 
-        combinations.forEach(function(comb, rowIndex) {
+        combinations.forEach(function(comb) {
             var names = comb.map(v => v.name).join(' - ');
             var ids   = comb.map(v => v.id).join(',');
             
+            // Skip manually removed combinations
+            if(removedCombinations.has(ids)) return;
+
             var $row;
             if(existingRows[ids]) {
                 $row = existingRows[ids];
@@ -532,31 +563,30 @@ $(document).ready(function () {
                 $row.find('.variant-name').html('<span class="name-text">' + names + '</span><input type="file" class="hidden-v-file hidden" multiple accept="image/*">');
                 $row.find('.variant-comb-input').val(ids);
                 
-                if(existingInDb) {
-                    $row.find('input[name="v_price[]"]').val(existingInDb.price);
-                    $row.find('input[name="v_stock[]"]').val(existingInDb.stock_quantity);
-                    $row.find('input[name="v_sku[]"]').val(existingInDb.sku);
-                    
-                    var eImgs = existingInDb.images;
-                    if(!eImgs && existingInDb.image) eImgs = [existingInDb.image];
-                    if(eImgs && typeof eImgs === 'string') {
-                        try { eImgs = JSON.parse(eImgs); }catch(e){ eImgs = []; }
+                    if(existingInDb) {
+                        $row.find('input[name="v_price[]"]').val(existingInDb.price);
+                        $row.find('input[name="v_stock[]"]').val(existingInDb.stock_quantity);
+                        $row.find('input[name="v_sku[]"]').val(existingInDb.sku);
+                        
+                        var dat = existingInDb.images;
+                        if(!dat && existingInDb.image) dat = [existingInDb.image];
+                        if(typeof dat !== 'string') dat = JSON.stringify(dat);
+                        $row.find('.existing-images-input').val(dat);
+                    } else {
+                        var mainPrice = $('#sale_price').val() || $('#regular_price').val();
+                        if(mainPrice) $row.find('input[name="v_price[]"]').val(mainPrice);
                     }
-                    if(eImgs && eImgs.length > 0) {
-                        $row.find('td:eq(0)').append('<div class="existing-images-data hidden" data-images=\''+JSON.stringify(eImgs)+'\'></div>');
-                    }
-                } else {
-                    var mainPrice = $('#sale_price').val() || $('#regular_price').val();
-                    if(mainPrice) $row.find('input[name="v_price[]"]').val(mainPrice);
                 }
-            }
             
             var colorVal = comb.find(v => v.attrName.toLowerCase().indexOf('color') !== -1);
             if (colorVal) {
                 $row.attr('data-color-name', colorVal.name);
             }
 
-            $row.find('.hidden-v-file').attr('name', 'v_images[' + rowIndex + '][]');
+            // Critical: Re-index using activeRowIndex
+            $row.find('.hidden-v-file').attr('name', 'v_images[' + activeRowIndex + '][]');
+            $row.find('.existing-images-input').attr('name', 'v_existing_images['+activeRowIndex+']');
+            activeRowIndex++;
 
             $('#variantMatrixBody').append($row);
         });

@@ -28,7 +28,11 @@ class CartController extends Controller
     public function index()
     {
         $cart = $this->getCart();
-        $items = array_values($cart);
+        $items = [];
+        foreach ($cart as $key => $item) {
+            $item['key'] = $key;
+            $items[] = $item;
+        }
         $totals = $this->calculateTotals($items);
 
         return view('frontend.cart', [
@@ -45,15 +49,67 @@ class CartController extends Controller
 
     public function add(Request $request, Product $product)
     {
+        Log::info('ADD TO CART REQUEST:', $request->all());
         $quantity = max(1, (int) $request->input('quantity', 1));
+        $attributes = $request->input('attributes', []);
         $cart = $this->getCart();
 
-        if (isset($cart[$product->id])) {
-            $cart[$product->id]['quantity'] += $quantity;
+        // Create a unique key for the cart item based on product ID and attributes
+        $cartKey = $product->id;
+        if (!empty($attributes)) {
+            ksort($attributes);
+            foreach ($attributes as $id => $val) {
+                $cartKey .= '_' . $id . '_' . $val;
+            }
+        }
+
+        if (isset($cart[$cartKey])) {
+            $cart[$cartKey]['quantity'] += $quantity;
         } else {
             $price = $this->productPrice($product);
             $imagePath = $this->productImagePath($product);
-            $cart[$product->id] = [
+            $size = '';
+            $color = '';
+
+            // Try to find matching variant for specific image/price
+            if (!empty($attributes)) {
+                $variants = $product->product_variants;
+                foreach ($variants as $variant) {
+                    $combination = $variant->combination; 
+                    if (!is_array($combination)) {
+                        $combination = is_string($combination) ? json_decode($combination, true) : [];
+                    }
+
+                    Log::info("CHECKING VARIANT {$variant->id}:", ['combination' => $combination, 'attributes' => $attributes]);
+                    $match = true;
+                    foreach ($attributes as $aid => $avid) {
+                        $avidInt = (int) $avid;
+                        if (!isset($combination[$aid]) || !in_array($avidInt, $combination[$aid])) {
+                            $match = false;
+                            break;
+                        }
+                    }
+                    if ($match) {
+                        Log::info("MATCH FOUND! Variant ID: {$variant->id}");
+                        if ($variant->price > 0) $price = $variant->price;
+                        if ($variant->sale_price > 0) $price = $variant->sale_price;
+                        if ($variant->image) $imagePath = $variant->image;
+                        break;
+                    }
+                }
+
+                // Get size and color names for display
+                foreach($attributes as $aid => $avid) {
+                    $val = \App\Models\AttributeValue::with('attribute')->find($avid);
+                    if($val && $val->attribute) {
+                        $attrName = strtolower($val->attribute->name);
+                        if(str_contains($attrName, 'size')) $size = $val->name;
+                        if(str_contains($attrName, 'color')) $color = $val->name;
+                    }
+                }
+            }
+
+            $cart[$cartKey] = [
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'slug' => $product->slug,
@@ -61,6 +117,9 @@ class CartController extends Controller
                 'image_path' => $imagePath,
                 'image_url' => $this->productImageUrl($imagePath),
                 'quantity' => $quantity,
+                'attributes' => $attributes,
+                'size' => $size,
+                'color' => $color,
             ];
         }
 
@@ -79,16 +138,16 @@ class CartController extends Controller
         $quantities = $request->input('quantities', []);
         $cart = $this->getCart();
 
-        foreach ($quantities as $productId => $qty) {
-            if (!isset($cart[$productId])) {
+        foreach ($quantities as $key => $qty) {
+            if (!isset($cart[$key])) {
                 continue;
             }
 
             $qty = (int) $qty;
             if ($qty <= 0) {
-                unset($cart[$productId]);
+                unset($cart[$key]);
             } else {
-                $cart[$productId]['quantity'] = $qty;
+                $cart[$key]['quantity'] = $qty;
             }
         }
 
@@ -101,10 +160,12 @@ class CartController extends Controller
         return redirect()->route('cart')->with('success', 'Cart updated.');
     }
 
-    public function remove(Product $product)
+    public function remove($key)
     {
         $cart = $this->getCart();
-        unset($cart[$product->id]);
+        if (isset($cart[$key])) {
+            unset($cart[$key]);
+        }
         $this->putCart($cart);
 
         return redirect()->route('cart')->with('success', 'Item removed.');
@@ -146,7 +207,11 @@ class CartController extends Controller
     public function checkout()
     {
         $cart = $this->getCart();
-        $items = array_values($cart);
+        $items = [];
+        foreach ($cart as $key => $item) {
+            $item['key'] = $key;
+            $items[] = $item;
+        }
 
         if (count($items) === 0) {
             return redirect()->route('shop')->with('error', 'Your cart is empty.');
@@ -238,6 +303,12 @@ class CartController extends Controller
                 'billing_address' => $isDifferentBilling ? $request->input('billing_address') : $request->input('delivery_address'),
             ]);
 
+            // Increment Coupon usage if applicable
+            $coupon = $totals['coupon'];
+            if ($coupon) {
+                $coupon->increment('times_used');
+            }
+
             foreach ($items as $item) {
                 $product = Product::find($item['product_id']);
                 
@@ -245,6 +316,9 @@ class CartController extends Controller
                     'order_id' => $order->id,
                     'product_id' => $item['product_id'],
                     'product_name' => $item['name'],
+                    'product_image' => $item['image_path'] ?? null,
+                    'size' => $item['size'] ?? null,
+                    'color' => $item['color'] ?? null,
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
                     'total' => $item['price'] * $item['quantity'],
@@ -275,18 +349,19 @@ class CartController extends Controller
             }
 
             DB::commit();
-            session()->forget(['cart', 'coupon_id']);
-
             if ($paymentMethod === 'razorpay') {
                 return $this->processRazorpay($order);
             }
 
-            return redirect()->route('order-confirmation', $order);
+            // Clear cart ONLY for COD here. Razorpay will clear in verifyRazorpay
+            session()->forget(['cart', 'coupon_id']);
+            return redirect()->route('my-orders')->with('success', 'Your order is completed successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Order Placement Failed: ' . $e->getMessage());
-            return redirect()->route('checkout')->with('error', 'Something went wrong while placing your order.');
+            // Show the actual error message to help the user debug (e.g. Razorpay keys)
+            return redirect()->route('checkout')->with('error', 'Order failed: ' . $e->getMessage());
         }
     }
 
@@ -324,7 +399,8 @@ class CartController extends Controller
             $order = Order::where('payment_id', $request->razorpay_order_id)->first();
             if ($order) {
                 $order->update(['payment_status' => 'paid', 'order_status' => 'processing']);
-                return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful.');
+                session()->forget(['cart', 'coupon_id']);
+                return redirect()->route('my-orders')->with('success', 'Your order is completed successfully');
             }
         }
 

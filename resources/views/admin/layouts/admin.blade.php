@@ -124,6 +124,20 @@
         .select2-results__option--highlighted[aria-selected] {
             background-color: #a91b43 !important;
         }
+
+        /* Custom Toastr Colors */
+        #toast-container > .toast {
+            background-image: none !important;
+            padding: 15px 20px 15px 50px !important;
+            box-shadow: 0 5px 15px rgba(169, 27, 67, 0.2) !important;
+            opacity: 1 !important;
+        }
+        #toast-container > .toast-success, 
+        #toast-container > .toast-error, 
+        #toast-container > .toast-info, 
+        #toast-container > .toast-warning {
+            background-color: #a91b43 !important;
+        }
     </style>
 </head>
 

@@ -208,6 +208,7 @@ class ProductController extends Controller
 
         // Handle General Images
         if ($request->hasFile('images')) {
+            // Delete old images if new ones uploaded
             if ($product->images) {
                 foreach ($product->images as $oldImage) {
                     if (file_exists(public_path('uploads/' . $oldImage))) unlink(public_path('uploads/' . $oldImage));
@@ -220,7 +221,30 @@ class ProductController extends Controller
                 $images[] = 'products/' . $imageName;
             }
             $data['images'] = $images;
+            $primaryIndex = $request->input('primary_image_index', 0);
+            $data['primary_image'] = $images[$primaryIndex] ?? $images[0];
         }
+
+        // Handle Color-specific Images (Merge with existing)
+        $colorImages = $product->color_images ?? [];
+        if(!is_array($colorImages)) {
+            $colorImages = json_decode($colorImages, true) ?? [];
+        }
+
+        if ($request->hasFile('color_images')) {
+            foreach ($request->file('color_images') as $colorValueId => $files) {
+                // If new files for this color are uploaded, we append them or replace?
+                // The user said "Update", usually means append or replace for that color.
+                // Let's replace only for that specific color if images are sent.
+                $colorImages[$colorValueId] = []; 
+                foreach ($files as $file) {
+                    $imageName = time() . '_' . uniqid() . '.' . $file->extension();
+                    $file->move(public_path('uploads/products'), $imageName);
+                    $colorImages[$colorValueId][] = 'products/' . $imageName;
+                }
+            }
+        }
+        $data['color_images'] = $colorImages;
 
         // Handle Variant Matrix
         if ($request->has('variant_combinations')) {
@@ -270,6 +294,17 @@ class ProductController extends Controller
 
                 // Handle Multiple Variant Images
                 $vUploadedImages = [];
+                $vExistingArray = [];
+                
+                // Get existing images from hidden input if present
+                if ($request->has('v_existing_images') && isset($request->v_existing_images[$index])) {
+                    $val = $request->v_existing_images[$index];
+                    if ($val) {
+                        $vExistingArray = json_decode($val, true) ?? [];
+                        if (!is_array($vExistingArray) && !empty($val)) $vExistingArray = [$val];
+                    }
+                }
+
                 if (isset($variantImagesFiles[$index])) {
                     foreach ($variantImagesFiles[$index] as $file) {
                         $imgName = time() . '_v_' . $index . '_' . uniqid() . '.' . $file->extension();
@@ -277,9 +312,10 @@ class ProductController extends Controller
                         $vUploadedImages[] = 'products/variants/' . $imgName;
                     }
                     $variantData['images'] = $vUploadedImages;
-                    $variantData['image'] = $vUploadedImages[0] ?? null; // For legacy
-                } elseif (isset($existingImages[$index]) && !empty($existingImages[$index])) {
-                    $variantData['image'] = $existingImages[$index];
+                    $variantData['image'] = $vUploadedImages[0] ?? null; 
+                } else {
+                    $variantData['images'] = $vExistingArray;
+                    $variantData['image'] = $vExistingArray[0] ?? null;
                 }
 
                 $product->product_variants()->create($variantData);

@@ -115,5 +115,20 @@ class Product extends Model
         }
         return 0;
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class)->where('status', 1);
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        return round($this->reviews()->avg('stars'), 1) ?: 5.0;
+    }
+
+    public function getReviewsCountAttribute()
+    {
+        return $this->reviews()->count();
+    }
 }
 
