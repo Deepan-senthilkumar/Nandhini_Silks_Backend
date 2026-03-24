@@ -426,7 +426,7 @@ class CartController extends Controller
             // Clear cart ONLY for COD here. Razorpay will clear in verifyRazorpay
             // Clear cart from both session and DB for auth users
             if (auth()->check()) {
-                \App\Models\CartItem::where('user_id', auth()->id())->delete();
+                \App\Models\CartItem::where('user_id', '=', auth()->id(), 'and')->delete();
             }
             session()->forget(['cart', 'coupon_id']);
             return redirect()->route('my-orders')->with('success', 'Your order is completed successfully');
@@ -501,7 +501,7 @@ class CartController extends Controller
     private function getCart(): array
     {
         if (auth()->check()) {
-            $dbItems = \App\Models\CartItem::where('user_id', auth()->id())->get();
+            $dbItems = \App\Models\CartItem::where('user_id', '=', auth()->id(), 'and')->get();
             $cart = [];
             foreach ($dbItems as $item) {
                 // Determine a unique key for the cart item
@@ -557,7 +557,7 @@ class CartController extends Controller
             $userId = auth()->id();
             // This is a simplified "replace all" approach for sync.
             // Ideally should update specifically, but for now we'll match by user.
-            \App\Models\CartItem::where('user_id', $userId)->delete();
+            \App\Models\CartItem::where('user_id', '=', $userId, 'and')->delete();
             foreach ($cart as $item) {
                 \App\Models\CartItem::create([
                     'user_id' => $userId,

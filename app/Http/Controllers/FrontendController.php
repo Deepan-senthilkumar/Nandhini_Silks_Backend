@@ -22,9 +22,9 @@ class FrontendController extends Controller
 {
     public function index()
     {
-        $banners = Banner::where('status', '=', 1)->orderBy('display_order', 'asc')->get();
+        $banners = Banner::where('status', '=', 1, 'and')->orderBy('display_order', 'asc')->get();
         $testimonials = Testimonial::where('status', '=', 1)->where('display_homepage', '=', true)->latest()->get();
-        $featuredProducts = Product::where('is_featured', '=', true)->where('status', '=', 1)->get();
+        $featuredProducts = Product::where('is_featured', '=', true, 'and')->where('status', '=', 1, 'and')->get();
         
         // Fetch categories for "Browse Our Categories"
         $categories = Category::with('subCategories')->where('status', '=', 1)->orderBy('display_order', 'asc')->get();

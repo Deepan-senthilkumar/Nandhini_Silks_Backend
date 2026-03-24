@@ -509,11 +509,12 @@
                 <span class="hamburger-bar"></span>
             </button>
             <div class="nav-links" id="navLinks">
-                <div class="mobile-menu-header">
-                    <a href="{{ route('home') }}">
-                        <img src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks" class="mobile-menu-logo">
-                    </a>
-                </div>
+                
+                    {{-- <div class="mobile-menu-header">
+                        <a href="{{ route('home') }}">
+                            <img src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks" class="mobile-menu-logo">
+                        </a>
+                    </div> --}}
                 @foreach($headerCategories as $category)
                     <div class="nav-item-wrapper">
                         <a href="{{ url('category/'.$category->slug) }}" class="nav-item @if($category->subCategories->count() > 0) nav-dropdown-toggle @endif">{{ $category->name }}</a>
