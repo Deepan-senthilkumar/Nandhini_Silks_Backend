@@ -9,9 +9,14 @@
                 <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <span>{{ $category->name }}</span>
             </div>
 
+            <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" style="display: none;">
+                <span>Filters</span>
+                <span class="mobile-filter-toggle-icon">+</span>
+            </button>
+
             <div class="category-layout">
                 <!-- Sidebar Filters -->
-                <aside class="filters-sidebar">
+                <aside class="filters-sidebar" id="filtersSidebar">
                     <form id="filterForm" action="{{ request()->fullUrl() }}" method="GET">
                         <div class="filter-group">
                             <h3 class="filter-title">Price Range</h3>
@@ -283,6 +288,34 @@
             });
         }
 
+        const mobileFilterToggle = document.getElementById('mobileFilterToggle');
+        const filtersSidebar = document.getElementById('filtersSidebar');
+
+        if (mobileFilterToggle && filtersSidebar) {
+            const syncFilterState = () => {
+                mobileFilterToggle.style.display = window.innerWidth <= 1024 ? 'flex' : 'none';
+
+                if (window.innerWidth > 1024) {
+                    filtersSidebar.classList.remove('mobile-open');
+                    mobileFilterToggle.setAttribute('aria-expanded', 'false');
+                    filtersSidebar.style.display = '';
+                } else {
+                    filtersSidebar.style.display = filtersSidebar.classList.contains('mobile-open') ? 'block' : 'none';
+                }
+            };
+
+            mobileFilterToggle.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    const isOpen = filtersSidebar.classList.toggle('mobile-open');
+                    mobileFilterToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    filtersSidebar.style.display = isOpen ? 'block' : 'none';
+                }
+            });
+
+            window.addEventListener('resize', syncFilterState);
+            syncFilterState();
+        }
+
         function toggleAttr(groupId, valueId) {
             const container = document.getElementById('attr_' + groupId + '_inputs');
             let input = container.querySelector('input[value="' + valueId + '"]');
@@ -303,6 +336,30 @@
         }
     </script>
     <style>
+        .mobile-filter-toggle {
+            display: none;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(169, 27, 67, 0.14);
+            border-radius: 12px;
+            background: #fff;
+            color: #A91B43;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+        }
+        .mobile-filter-toggle-icon {
+            font-size: 20px;
+            line-height: 1;
+            transition: transform 0.3s ease;
+        }
+        .mobile-filter-toggle[aria-expanded="true"] .mobile-filter-toggle-icon {
+            transform: rotate(45deg);
+        }
         .chip { 
             display: inline-flex; 
             align-items: center; 
@@ -340,6 +397,86 @@
         .color-dot.active {
             border: 3px solid #fff !important;
             box-shadow: 0 0 0 2px #A91B43 !important;
+        }
+        @media (max-width: 1024px) {
+            .mobile-filter-toggle {
+                display: flex;
+            }
+            .filters-sidebar {
+                display: none !important;
+            }
+            .filters-sidebar.mobile-open {
+                display: block !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .product-listing-header {
+                gap: 16px !important;
+            }
+            .product-listing-header > div:last-child {
+                width: 100%;
+                flex-direction: row;
+                align-items: center !important;
+                justify-content: space-between;
+                gap: 10px;
+                flex-wrap: nowrap;
+            }
+            .view-toggle {
+                align-self: center;
+                flex-shrink: 0;
+            }
+            .product-listing-header form {
+                width: auto;
+                margin-left: 0 !important;
+                flex-shrink: 0;
+            }
+            .sort-select {
+                width: auto;
+                min-height: 38px;
+                padding: 8px 12px;
+                border-radius: 10px;
+                font-size: 13px;
+                background: #fff;
+                margin: 0;
+            }
+        }
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .mobile-filter-toggle {
+                display: none !important;
+            }
+            .category-layout {
+                grid-template-columns: 280px 1fr !important;
+                gap: 30px !important;
+            }
+            .filters-sidebar {
+                display: block !important;
+                width: auto !important;
+                padding: 25px !important;
+                margin-bottom: 0 !important;
+            }
+            .product-grid-main:not(.view-list) {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 25px !important;
+            }
+            .product-grid-main:not(.view-list) .product-card-v2 {
+                padding: 12px !important;
+            }
+            .product-grid-main:not(.view-list) .product-image-v2 {
+                aspect-ratio: 3 / 4 !important;
+                margin-bottom: 10px !important;
+            }
+            .product-grid-main:not(.view-list) .product-name-v2 {
+                font-size: inherit !important;
+            }
+            .product-grid-main.view-list .product-card-v2 {
+                grid-template-columns: 160px 1fr 180px !important;
+                grid-template-areas: "image info actions" !important;
+                gap: 25px !important;
+                padding: 20px !important;
+            }
+            .product-grid-main.view-list .product-image-v2 {
+                height: 200px !important;
+            }
         }
     </style>
 @endpush
