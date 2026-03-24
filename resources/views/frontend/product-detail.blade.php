@@ -45,19 +45,21 @@
             }
         }
         .attribute-option.active.color-swatch {
-            box-shadow: 0 0 0 2px #A91B43 !important;
-            transform: scale(1.1);
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #A91B43 !important;
+            transform: scale(1.15);
+            z-index: 2;
         }
         .attribute-option.active.size-btn {
             background: #A91B43 !important;
             color: #fff !important;
             border-color: #A91B43 !important;
+            box-shadow: 0 4px 12px rgba(169, 27, 67, 0.2);
         }
 
         /* Unavailable/Out of Stock Swatch Style - Strike-through & Dashed */
         .attribute-option.unavailable {
             position: relative !important;
-            opacity: 0.6 !important;
+            opacity: 0.4 !important;
             cursor: not-allowed !important;
             pointer-events: none !important;
             background: #f8f9fa !important;
@@ -323,6 +325,29 @@
             box-shadow: 0 12px 24px rgba(169, 27, 67, 0.2);
         }
 
+        /* Enhanced Swatch Container */
+        .swatch-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 4px 0;
+        }
+
+        .attribute-option {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+
+        .size-btn:hover:not(.active) {
+            border-color: #A91B43 !important;
+            color: #A91B43 !important;
+            background: #fff5f8 !important;
+        }
+
         .quantity-section {
             width: 100%;
         }
@@ -331,32 +356,45 @@
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center;
-            min-height: 34px;
+            min-height: 48px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .qty-btn {
-            width: 32px;
-            height: 34px;
+            width: 44px;
+            height: 48px;
             padding: 0 !important;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px !important;
-            line-height: 1;
-            flex-shrink: 0;
+            font-size: 18px !important;
+            color: #1a1a1a;
+            background: #f9fafb;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: #f3f4f6;
+            color: #A91B43;
         }
 
         .qty-input {
-            width: 36px !important;
-            min-width: 36px;
-            height: 34px;
+            width: 44px !important;
+            height: 48px;
             padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 34px;
-            font-size: 13px !important;
-            flex-shrink: 0;
+            text-align: center;
+            background: #fff;
+            border: none;
+            border-left: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+            font-size: 15px !important;
+            font-weight: 700;
+            color: #1a1a1a;
         }
 
         @media (max-width: 768px) {
@@ -536,50 +574,69 @@
                         <input type="hidden" name="quantity" id="qtyInput" value="1">
 
                         @if(!empty($attributeGroups))
-                            <div class="product-selections" style="margin-bottom: 20px;">
+                            <div class="product-selections" style="margin-bottom: 25px;">
                                 @foreach($attributeGroups as $group)
                                     @php
                                         $attrId = $group['attribute']->id;
                                         $attrName = $group['attribute']->name;
                                     @endphp
-                                    <div class="attribute-section" style="margin-bottom: 15px;">
-                                        <h3 class="attribute-title" style="font-size: 11px; margin-bottom: 8px; text-transform: uppercase; color: #999; font-weight: 700; letter-spacing: 0.5px;">
-                                            Select {{ $attrName }}
+                                    <div class="attribute-section" style="margin-bottom: 20px;">
+                                        <h3 class="attribute-title" style="font-size: 11.5px; margin-bottom: 12px; text-transform: uppercase; color: #1a1a1a; font-weight: 800; letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px;">
+                                            {{ $attrName }}: <span id="label_{{ $attrId }}" style="text-transform: capitalize; color: #A91B43; font-weight: 700;">Select {{ $attrName }}</span>
                                         </h3>
                                         <input type="hidden" name="attributes[{{ $attrId }}]" id="attr_{{ $attrId }}" value="">
-                                        <div class="swatch-container" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                        <div class="swatch-container">
                                             @foreach($group['values'] as $value)
                                                 @php
+                                                    $isColorAttr = strtolower($attrName) == 'color' || str_contains(strtolower($attrName), 'color');
                                                     $swatch = $value->swatch_value;
                                                     // Fallback to variant image for color swatch if swatch_value is missing
-                                                    if(!$swatch && strtolower($attrName) == 'color' && isset($colorImagesMap[$value->id])) {
+                                                    if(!$swatch && $isColorAttr && isset($colorImagesMap[$value->id])) {
                                                         $swatch = $colorImagesMap[$value->id][0];
                                                     }
-                                                    $isColor = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
+                                                    
+                                                    $isHexColor = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
                                                 @endphp
-                                                @if($swatch)
-                                                    @if($isColor)
-                                                        <div class="attribute-option color-swatch" 
-                                                             data-attr-id="{{ $attrId }}" 
-                                                             data-value-id="{{ $value->id }}"
-                                                             onclick="selectAttribute(this)"
-                                                             style="background: {{ $swatch }}; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer; transition: all 0.2s;" 
-                                                             title="{{ $value->name }}"></div>
-                                                    @else
-                                                        <div class="attribute-option color-swatch" 
-                                                             data-attr-id="{{ $attrId }}" 
-                                                             data-value-id="{{ $value->id }}"
-                                                             onclick="selectAttribute(this)"
-                                                             style="background-image: url('{{ asset('uploads/' . $swatch) }}'); background-size: cover; background-position: center; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer; transition: all 0.2s;" 
-                                                             title="{{ $value->name }}"></div>
-                                                    @endif
+                                                
+                                                @if($isColorAttr || $swatch)
+                                                    @php
+                                                        $bgStyle = "";
+                                                        if($isHexColor) {
+                                                            $bgStyle = "background: $swatch;";
+                                                        } elseif($swatch) {
+                                                            $bgStyle = "background-image: url('" . asset('uploads/' . $swatch) . "'); background-size: cover; background-position: center;";
+                                                        } else {
+                                                            // Fallback to color name as background with a small mapping for common saree colors
+                                                            $colorMap = [
+                                                                'gold' => '#D4AF37',
+                                                                'mustard' => '#E1AD01',
+                                                                'maroon' => '#800000',
+                                                                'navy blue' => '#000080',
+                                                                'cream' => '#FFFDD0',
+                                                                'bottle green' => '#006A4E',
+                                                                'rama blue' => '#008080',
+                                                                'pista green' => '#93C572',
+                                                                'onion pink' => '#D192A0',
+                                                                'copper' => '#B87333',
+                                                                'silver' => '#C0C0C0',
+                                                            ];
+                                                            $colorName = strtolower($value->name);
+                                                            $bgStyle = "background: " . ($colorMap[$colorName] ?? $colorName) . ";";
+                                                        }
+                                                    @endphp
+                                                    <div class="attribute-option color-swatch" 
+                                                         data-attr-id="{{ $attrId }}" 
+                                                         data-value-id="{{ $value->id }}"
+                                                         onclick="selectAttribute(this)"
+                                                         style="{{ $bgStyle }} width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #e5e7eb; cursor: pointer;" 
+                                                         title="{{ $value->name }}"></div>
                                                 @else
                                                     <button type="button" 
                                                             class="attribute-option size-btn" 
                                                             data-attr-id="{{ $attrId }}" 
                                                             data-value-id="{{ $value->id }}"
                                                             onclick="selectAttribute(this)"
-                                                            style="padding: 6px 16px; border: 1.5px solid #eee; background: #fff; color: #333; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;">
+                                                            style="padding: 10px 20px; border: 1.5px solid #e5e7eb; background: #fff; color: #1a1a1a; border-radius: 8px; cursor: pointer; font-size: 13.5px; font-weight: 600;">
                                                         {{ $value->name }}
                                                     </button>
                                                 @endif
@@ -591,21 +648,22 @@
                         @endif
 
                         <!-- Quantity Selector -->
-                        <div class="quantity-section" style="margin-bottom: 20px;">
-                            <h3 style="font-size: 11px; margin-bottom: 8px; text-transform: uppercase; color: #999; font-weight: 700; letter-spacing: 0.5px;">Quantity</h3>
-                            <div class="quantity-picker" style="display: flex; align-items: center; border: 1.5px solid #eee; width: fit-content; border-radius: 8px; overflow: hidden; background: #fff;">
-                                <button type="button" class="qty-btn" onclick="updateQty(-1)" style="padding: 8px 15px; background: none; border: none; font-size: 16px; cursor: pointer; color: #333;">−</button>
-                                <input type="text" class="qty-input" value="1" readonly id="qtyDisp" style="width: 40px; text-align: center; border: none; font-weight: 700; font-size: 14px; background: transparent;">
-                                <button type="button" class="qty-btn" onclick="updateQty(1)" style="padding: 8px 15px; background: none; border: none; font-size: 16px; cursor: pointer; color: #333;">+</button>
+                        <div class="quantity-section" style="margin-bottom: 25px;">
+                            <h3 style="font-size: 11.5px; margin-bottom: 12px; text-transform: uppercase; color: #1a1a1a; font-weight: 800; letter-spacing: 0.8px;">Quantity</h3>
+                            <div class="quantity-picker">
+                                <button type="button" class="qty-btn" onclick="updateQty(-1)">−</button>
+                                <input type="text" class="qty-input" value="1" readonly id="qtyDisp">
+                                <button type="button" class="qty-btn" onclick="updateQty(1)">+</button>
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="product-actions-group" style="display: flex; gap: 12px; max-width: 500px;">
-                            <button type="submit" name="action" value="cart" class="btn-add-cart" style="flex: 1; background: #A91B43; color: #fff; padding: 16px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; letter-spacing: 0.5px; transition: background 0.2s;">
+                        <div class="product-actions-group" style="display: flex; gap: 15px; max-width: 500px; margin-top: 5px;">
+                            <button type="submit" name="action" value="cart" class="btn-add-cart" style="flex: 1.2; background: #A91B43; color: #fff; height: 56px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; letter-spacing: 1px; transition: all 0.3s; box-shadow: 0 8px 20px rgba(169, 27, 67, 0.2); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                <i class="fas fa-shopping-bag" style="font-size: 16px;"></i>
                                 ADD TO CART
                             </button>
-                            <button type="submit" name="action" value="checkout" class="btn-buy-now" style="flex: 1; background: #111; color: #fff; padding: 16px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; letter-spacing: 0.5px; transition: background 0.2s;">
+                            <button type="submit" name="action" value="checkout" class="btn-buy-now" style="flex: 1; background: #1a1a1a; color: #fff; height: 56px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; letter-spacing: 1px; transition: all 0.3s; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: center; gap: 10px;">
                                 BUY IT NOW
                             </button>
                         </div>
@@ -875,6 +933,13 @@
             // Update hidden input
             const input = document.getElementById('attr_' + attrId);
             if (input) input.value = valueId;
+
+            // Update label
+            const label = document.getElementById('label_' + attrId);
+            if (label) {
+                const title = element.getAttribute('title') || element.innerText.trim();
+                label.innerText = title;
+            }
 
             // Update Gallery if Color
             if(element.classList.contains('color-swatch')) {
