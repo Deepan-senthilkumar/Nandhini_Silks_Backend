@@ -25,6 +25,12 @@ Route::post('/login', [UserAuthController::class, 'login'])->name('login.submit'
 Route::post('/register', [UserAuthController::class, 'register'])->name('register');
 Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
 
+// Password Reset Routes
+Route::get('/forgot-password', [UserAuthController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [UserAuthController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [UserAuthController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [UserAuthController::class, 'reset'])->name('password.update');
+
 use App\Http\Controllers\WishlistController;
 
 // Frontend Static Pages
