@@ -148,6 +148,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/stock/{product}/logs', [\App\Http\Controllers\Admin\StockController::class, 'showLogs'])->name('admin.stock.logs');
 
         // Products
+        Route::get('products/check-uniqueness', [ProductController::class, 'checkUniqueness'])->name('admin.products.check-uniqueness');
+        Route::get('products/success', function() { return view('admin.products.success'); })->name('admin.products.success');
         Route::resource('products', ProductController::class)->names('admin.products');
 
         // Admin Profile & Management

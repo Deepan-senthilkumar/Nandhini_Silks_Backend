@@ -359,11 +359,22 @@ class FrontendController extends Controller
 
     private function buildAttributeGroups(Product $product): array
     {
-        $productAttributes = $product->getAttribute('attributes') ?? [];
-        if (is_string($productAttributes)) {
-            $decoded = json_decode($productAttributes, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $productAttributes = $decoded;
+        $productAttributes = $product->attributes ?? [];
+        
+        // If attributes JSON is empty, try to derive from variants
+        if (empty($productAttributes) && $product->product_variants->count() > 0) {
+            foreach ($product->product_variants as $v) {
+                if ($v->combination) {
+                    foreach ($v->combination as $attrId => $valIds) {
+                        foreach ((array)$valIds as $id) {
+                            $productAttributes[$attrId][] = (int)$id;
+                        }
+                    }
+                }
+            }
+            // Deduplicate
+            foreach ($productAttributes as $attrId => $ids) {
+                $productAttributes[$attrId] = array_values(array_unique($ids));
             }
         }
 
