@@ -26,6 +26,9 @@ class FrontendController extends Controller
         $banners = Banner::where('status', '=', 1, 'and')->orderBy('display_order', 'asc')->get();
         $testimonials = Testimonial::where('status', '=', 1)->where('display_homepage', '=', true)->latest()->get();
         $featuredProducts = Product::where('is_featured', '=', true, 'and')->where('status', '=', 1, 'and')->get();
+        $offerProducts = $featuredProducts->isNotEmpty()
+            ? $featuredProducts
+            : Product::where('status', '=', 1)->latest()->limit(8)->get();
         
         // Fetch categories for "Browse Our Categories"
         $categories = Category::with('subCategories')->where('status', '=', 1)->orderBy('display_order', 'asc')->get();
