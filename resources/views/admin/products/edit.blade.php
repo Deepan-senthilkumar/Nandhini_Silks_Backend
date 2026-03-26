@@ -74,12 +74,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Short Description</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Description</label>
                         <textarea name="short_description" id="short_description" rows="2"
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">{{ old('short_description', $product->short_description) }}</textarea>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Specif</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Specification</label>
                         <textarea name="full_description" id="full_description" rows="5"
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">{{ old('full_description', $product->full_description) }}</textarea>
                     </div>

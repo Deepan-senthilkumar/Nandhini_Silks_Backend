@@ -885,6 +885,33 @@
         .category-ring {
             border-width: 2px !important;
         }
+
+        /* Price alignment fixes */
+        .featured-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .featured-price-wrap {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .featured-price {
+            color: #744707;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+        }
+
+        .featured-card .old-price {
+            font-size: 13px !important;
+            color: #888 !important;
+            text-decoration: line-through;
+        }
     </style>
 @endpush
 
@@ -986,8 +1013,12 @@
                                             <h3 class="featured-name">{{ $product->name }}</h3>
                                         </a>
                                         <div class="featured-footer">
-                                            <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}
-                                                INR</span>
+                                            <div class="featured-price-wrap">
+                                                <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
+                                                @if ($product->regular_price > $product->price)
+                                                    <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
+                                                @endif
+                                            </div>
                                             <div style="display: flex; gap: 8px;">
                                                 @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                                 <button class="wishlist-btn" type="button"
@@ -1058,7 +1089,12 @@
                                             <h3 class="featured-name">{{ $product->name }}</h3>
                                         </a>
                                         <div class="featured-footer">
-                                            <span class="featured-price">&#8377; {{ number_format($product->price, 0) }} INR</span>
+                                            <div class="featured-price-wrap">
+                                                <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
+                                                @if ($product->regular_price > $product->price)
+                                                    <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
+                                                @endif
+                                            </div>
                                             <div style="display: flex; gap: 8px;">
                                                 @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                                 <button class="wishlist-btn" type="button" data-product-id="{{ $product->id }}">

@@ -1518,9 +1518,9 @@
                     </div>
                     <p class="product-tax-note">(Inclusive of all taxes)</p>
 
-                    @if ($product->full_description)
+                    @if ($product->short_description)
                         <div class="product-description-short">
-                            {!! Str::limit(strip_tags($product->full_description), 150) !!}
+                            {!! Str::limit(strip_tags($product->short_description), 150) !!}
                         </div>
                     @endif
 
@@ -1704,25 +1704,14 @@
 
                 <div class="tab-pane active" id="tabDesc">
                     <div class="tab-content-text">
-                        {!! $product->full_description !!}
+                        {!! $product->short_description !!}
                     </div>
                 </div>
 
                 <div class="tab-pane" id="tabSpecs">
-                    <table class="specs-table">
-                        <tr>
-                            <td class="specs-label">Category</td>
-                            <td class="specs-value">{{ $product->category->name ?? 'Collection' }}</td>
-                        </tr>
-                        <tr>
-                            <td class="specs-label">Stock Status</td>
-                            <td class="specs-value">{{ $product->stock > 0 ? 'Available' : 'Out of Stock' }}</td>
-                        </tr>
-                        <tr>
-                            <td class="specs-label">Material</td>
-                            <td class="specs-value">{{ $product->brand ?? '-' }}</td>
-                        </tr>
-                    </table>
+                    <div class="tab-content-text">
+                        {!! $product->full_description !!}
+                    </div>
                 </div>
 
                 <div class="tab-pane" id="tabReviews">
