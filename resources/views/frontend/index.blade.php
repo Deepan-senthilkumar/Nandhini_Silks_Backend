@@ -75,10 +75,27 @@
             box-sizing: border-box;
         }
 
+        .offers-section {
+            width: 100%;
+            max-width: none;
+            margin: -6px 0 50px;
+            padding: 36px 0 44px;
+            background: linear-gradient(90deg, #a91b435c 0%, #fbb6245c 100%);
+        }
+
+        .offers-section .featured-inner {
+            padding-top: 0;
+            padding-bottom: 0;
+            border-radius: 0;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+        }
+
         .collection-section,
         .category-section {
             margin-top: 0;
-            margin-bottom: 50px;
+            margin-bottom: 0;
         }
 
         .featured-section {
@@ -139,7 +156,9 @@
         .promo-next,
         .promo-prev,
         .featured-next,
-        .featured-prev {
+        .featured-prev,
+        .offers-next,
+        .offers-prev {
             position: absolute;
             top: 45%;
             transform: translateY(-50%);
@@ -150,7 +169,8 @@
         .featured-prev,
         .collection-prev,
         .testimonial-prev,
-        .promo-prev {
+        .promo-prev,
+        .offers-prev {
             left: -80px;
         }
 
@@ -162,7 +182,8 @@
         .featured-next,
         .collection-next,
         .testimonial-next,
-        .promo-next {
+        .promo-next,
+        .offers-next {
             right: -80px;
         }
 
@@ -185,7 +206,9 @@
         .promo-next,
         .promo-prev,
         .featured-next,
-        .featured-prev {
+        .featured-prev,
+        .offers-next,
+        .offers-prev {
             box-shadow: 0 10px 22px rgba(169, 27, 67, 0.22);
             width: 44px;
             height: 44px;
@@ -201,7 +224,9 @@
         .promo-next::after,
         .promo-prev::after,
         .featured-next::after,
-        .featured-prev::after {
+        .featured-prev::after,
+        .offers-next::after,
+        .offers-prev::after {
             font-size: 18px;
             font-weight: bold;
         }
@@ -250,7 +275,12 @@
         }
 
         .featured-name {
-            min-height: 46px;
+            min-height: 10px;
+            margin-bottom: 6px !important;
+        }
+
+        .featured-footer {
+            margin-top: 2px !important;
         }
 
         .category-title,
@@ -325,7 +355,7 @@
             position: relative;
             text-decoration: none;
             border-radius: 20px;
-            overflow: hidden;
+            overflow: hidden !important;
             /* Surgical Gradient Border: only border, no background color */
             border: 2px solid transparent;
             background: linear-gradient(white, white) padding-box,
@@ -386,7 +416,9 @@
 
             .promo-prev,
             .promo-next {
-                display: none;
+                display: flex !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
             }
 
             .promo-banner {
@@ -489,6 +521,8 @@
             .promo-prev,
             .featured-next,
             .featured-prev,
+            .offers-next,
+            .offers-prev,
             .hero-next,
             .hero-prev {
                 width: 32px !important;
@@ -505,6 +539,8 @@
             .promo-prev::after,
             .featured-next::after,
             .featured-prev::after,
+            .offers-next::after,
+            .offers-prev::after,
             .hero-next::after,
             .hero-prev::after {
                 font-size: 13px !important;
@@ -534,7 +570,7 @@
 
             /* ── Special case for featured-inner which is already a sub-container ── */
             .featured-section {
-                margin-bottom: 30px;
+                margin-bottom: 5px;
             }
 
             /* Nav buttons sit on the left/right edge of the section padding area */
@@ -565,14 +601,14 @@
                 min-height: auto;
                 font-size: 15px;
                 margin-top: 12px !important;
-                margin-bottom: 12px !important;
+                margin-bottom: 6px !important;
                 width: 100%;
             }
 
             .collection-cta,
             .featured-footer {
                 position: static !important;
-                margin-top: 8px !important;
+                margin-top: 2px !important;
                 align-self: center !important;
             }
 
@@ -596,6 +632,17 @@
                 padding-right: 40px !important;
             }
 
+            .offers-section {
+                margin-top: -4px !important;
+                padding: 26px 0 32px !important;
+            }
+
+            .offers-section .featured-inner {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                border-radius: 0 !important;
+            }
+
             .featured-swiper {
                 padding-left: 0;
                 padding-right: 0;
@@ -607,7 +654,17 @@
                 top: 40%;
             }
 
+            .offers-prev {
+                left: -35px;
+                top: 40%;
+            }
+
             .featured-next {
+                right: -35px;
+                top: 40%;
+            }
+
+            .offers-next {
                 right: -35px;
                 top: 40%;
             }
@@ -747,7 +804,7 @@
 
             .promo-swiper-wrap {
                 overflow: hidden;
-                padding: 0 24px;
+                padding: 0;
             }
 
             .promo-swiper {
@@ -757,6 +814,7 @@
 
             .promo-card {
                 border-radius: 20px !important;
+                overflow: hidden !important;
             }
 
             .promo-card::before,
@@ -770,13 +828,13 @@
             }
 
             .promo-prev {
-                left: 0 !important;
+                left: 5px !important;
                 top: 50%;
                 z-index: 1001;
             }
 
             .promo-next {
-                right: 0 !important;
+                right: 5px !important;
                 top: 50%;
                 z-index: 1001;
             }
@@ -1058,7 +1116,7 @@
                                                     data-product-id="{{ $product->id }}" aria-label="Add to wishlist"
                                                     style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center;">
                                                     <svg width="20" height="20" viewBox="0 0 24 24"
-                                                        fill="{{ $inWishlist ? '#A91B43' : '#666' }}">
+                                                        fill="#C1121F">
                                                         <path
                                                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                                     </svg>
@@ -1092,14 +1150,14 @@
         </section>
     @endif
 
-    @foreach($offerCollections as $collection)
-        <section class="featured-section" aria-labelledby="collection-title-{{ $collection->id }}">
+     @foreach($offerCollections as $collection)
+        <section class="featured-section offers-section" aria-labelledby="offers-title">
             <div class="featured-inner">
-                <h2 id="collection-title-{{ $collection->id }}" class="featured-title">{{ $collection->name }}</h2>
-                <p class="featured-subtitle">Curated collections just for you</p>
+                <h2 id="offers-title" class="featured-title">Offers</h2>
+                <p class="featured-subtitle">Curated picks from our active offer collections, chosen for extra value</p>
 
-                <div class="featured-swiper-container" style="position: relative;">
-                    <div class="swiper collection-products-swiper">
+                <div class="featured-swiper-container offers-swiper-container" style="position: relative;">
+                    <div class="swiper offers-swiper">
                         <div class="swiper-wrapper">
                             @foreach ($collection->products as $product)
                                 <div class="swiper-slide">
@@ -1122,20 +1180,21 @@
                                             <h3 class="featured-name">{{ $product->name }}</h3>
                                         </a>
                                         <div class="featured-footer">
-                                            <div class="featured-price-wrap">
-                                                <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
-                                                @if ($product->regular_price > $product->price)
-                                                    <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
-                                                @endif
-                                            </div>
+                                            <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
                                             <div style="display: flex; gap: 8px;">
-                                                @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                                <button class="wishlist-btn" type="button" data-product-id="{{ $product->id }}">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="{{ $inWishlist ? '#A91B43' : '#666' }}">
-                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
+                                                <button class="wishlist-btn" type="button"
+                                                    data-product-id="{{ $product->id }}" aria-label="Add to wishlist"
+                                                    style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center;">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24"
+                                                        fill="#C1121F">
+                                                        <path
+                                                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                                     </svg>
                                                 </button>
-                                                <button class="featured-cart add-to-cart-btn" data-product-id="{{ $product->id }}">
+                                                <button class="featured-cart add-to-cart-btn" type="button"
+                                                    data-product-id="{{ $product->id }}"
+                                                    aria-label="Add {{ $product->name }} to cart">
                                                     <img src="{{ asset('images/Vector.svg') }}" alt="" />
                                                 </button>
                                             </div>
@@ -1145,12 +1204,10 @@
                             @endforeach
                         </div>
                     </div>
-                    <!-- Unique Nav for this swiper -->
                     <div class="swiper-button-next featured-next collection-next-{{ $collection->id }}"></div>
                     <div class="swiper-button-prev featured-prev collection-prev-{{ $collection->id }}"></div>
                 </div>
             </div>
-            <!-- Ensure no gap between consecutive featured sections by using simple structure here -->
         </section>
     @endforeach
 
@@ -1186,7 +1243,6 @@
     @endif
 
 
-    <!-- Fully Reconstructed Promo Section (Backend Dynamic Structure) -->
     <section class="promo-section" aria-label="Promotions">
         @if (isset($ads) && $ads->count() > 0)
             <div class="promo-swiper-wrap">
@@ -1430,9 +1486,9 @@
                         },
                         breakpoints: {
                             0: {
-                                slidesPerView: promoSlideCount > 1 ? 1.15 : 1,
+                                slidesPerView: 1,
                                 spaceBetween: 12,
-                                centeredSlides: promoSlideCount > 1,
+                                centeredSlides: false,
                             },
                             768: {
                                 slidesPerView: promoSlideCount >= 2 ? 2 : 1,
@@ -1446,75 +1502,17 @@
                     });
                 }
 
-                const featuredSwiper = new Swiper('.featured-swiper', {
-                    slidesPerView: 1,
-                    spaceBetween: 18,
-                    loop: {{ count($featuredProducts) > 1 ? 'true' : 'false' }},
-                    autoplay: {
-                        delay: 3500,
-                        disableOnInteraction: false,
-                    },
-                    navigation: {
-                        nextEl: '.featured-next',
-                        prevEl: '.featured-prev',
-                    },
-                    breakpoints: {
-                        640: {
-                            slidesPerView: 2
-                        },
-                        768: {
-                            slidesPerView: 3
-                        },
-                        1024: {
-                            slidesPerView: 4
-                        },
-                    },
-                    on: {
-                        init: function() {
-                            updateProgressBar(this);
-                        },
-                        slideChange: function() {
-                            updateProgressBar(this);
-                        },
-                        resize: function() {
-                            updateProgressBar(this);
-                        }
-                    }
-                });
-
-                // Initialize Offer Collection Swipers
-                @foreach($offerCollections as $collection)
-                new Swiper('.collection-products-swiper', {
-                    slidesPerView: 1,
-                    spaceBetween: 18,
-                    loop: {{ $collection->products->count() > 1 ? 'true' : 'false' }},
-                    autoplay: {
-                        delay: 3500 + {{ $loop->index * 500 }},
-                        disableOnInteraction: false,
-                    },
-                    navigation: {
-                        nextEl: '.collection-next-{{ $collection->id }}',
-                        prevEl: '.collection-prev-{{ $collection->id }}',
-                    },
-                    breakpoints: {
-                        640: { slidesPerView: 2 },
-                        768: { slidesPerView: 3 },
-                        1024: { slidesPerView: 4 },
-                    }
-                });
-                @endforeach
-
-                function getFeaturedProductCount(swiper) {
+                function getRailProductCount(swiper) {
                     return swiper.slides.filter(slide => !slide.classList.contains('swiper-slide-duplicate')).length;
                 }
 
-                function updateProgressBar(swiper) {
-                    const progressFill = document.getElementById('progressFill');
-                    const currentSlide = document.getElementById('currentSlide');
+                function updateProgressBar(swiper, progressFillId, currentSlideId) {
+                    const progressFill = document.getElementById(progressFillId);
+                    const currentSlide = document.getElementById(currentSlideId);
 
                     if (!progressFill || !currentSlide) return;
 
-                    const totalProducts = getFeaturedProductCount(swiper);
+                    const totalProducts = getRailProductCount(swiper);
                     const currentIndex = Math.min(swiper.realIndex, Math.max(totalProducts - 1, 0));
                     const progress = totalProducts <= 1 ? 100 : (currentIndex / (totalProducts - 1)) * 100;
 
@@ -1522,24 +1520,80 @@
                     currentSlide.textContent = String(currentIndex + 1).padStart(2, '0');
                 }
 
-                function seekFeaturedProducts(event) {
-                    const progressTrack = document.getElementById('progressTrack');
-                    if (!progressTrack) return;
+                function initProductRail(swiperSelector, nextEl, prevEl, progressFillId, currentSlideId, progressTrackId) {
+                    const swiperRoot = document.querySelector(swiperSelector);
+                    if (!swiperRoot) return null;
 
-                    const rect = progressTrack.getBoundingClientRect();
-                    const clickOffset = Math.min(Math.max(event.clientX - rect.left, 0), rect.width);
-                    const clickRatio = rect.width === 0 ? 0 : clickOffset / rect.width;
-                    const totalProducts = getFeaturedProductCount(featuredSwiper);
-                    const targetIndex = totalProducts <= 1 ? 0 : Math.round(clickRatio * (totalProducts - 1));
+                    const swiper = new Swiper(swiperSelector, {
+                        slidesPerView: 1,
+                        spaceBetween: 18,
+                        loop: true,
+                        autoplay: {
+                            delay: 3500,
+                            disableOnInteraction: false,
+                        },
+                        navigation: {
+                            nextEl,
+                            prevEl,
+                        },
+                        breakpoints: {
+                            640: {
+                                slidesPerView: 2
+                            },
+                            768: {
+                                slidesPerView: 3
+                            },
+                            1024: {
+                                slidesPerView: 4
+                            },
+                        },
+                        on: {
+                            init: function() {
+                                updateProgressBar(this, progressFillId, currentSlideId);
+                            },
+                            slideChange: function() {
+                                updateProgressBar(this, progressFillId, currentSlideId);
+                            },
+                            resize: function() {
+                                updateProgressBar(this, progressFillId, currentSlideId);
+                            }
+                        }
+                    });
 
-                    featuredSwiper.slideToLoop(targetIndex);
+                    const progressTrack = document.getElementById(progressTrackId);
+                    if (progressTrack) {
+                        progressTrack.style.cursor = 'pointer';
+                        progressTrack.addEventListener('click', function(event) {
+                            const rect = progressTrack.getBoundingClientRect();
+                            const clickOffset = Math.min(Math.max(event.clientX - rect.left, 0), rect.width);
+                            const clickRatio = rect.width === 0 ? 0 : clickOffset / rect.width;
+                            const totalProducts = getRailProductCount(swiper);
+                            const targetIndex = totalProducts <= 1 ? 0 : Math.round(clickRatio * (totalProducts - 1));
+
+                            swiper.slideToLoop(targetIndex);
+                        });
+                    }
+
+                    return swiper;
                 }
 
-                const progressTrack = document.getElementById('progressTrack');
-                if (progressTrack) {
-                    progressTrack.style.cursor = 'pointer';
-                    progressTrack.addEventListener('click', seekFeaturedProducts);
-                }
+                const featuredSwiper = initProductRail(
+                    '.featured-swiper',
+                    '.featured-next',
+                    '.featured-prev',
+                    'progressFill',
+                    'currentSlide',
+                    'progressTrack'
+                );
+
+                initProductRail(
+                    '.offers-swiper',
+                    '.offers-next',
+                    '.offers-prev',
+                    'offersProgressFill',
+                    'offersCurrentSlide',
+                    'offersProgressTrack'
+                );
 
                 // AJAX Add to Cart for Home Page buttons
                 document.addEventListener('click', function(e) {
