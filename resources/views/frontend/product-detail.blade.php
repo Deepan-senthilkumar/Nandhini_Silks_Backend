@@ -2396,18 +2396,11 @@
                         </div>
                         <!-- Action Buttons -->
                         <div class="product-actions-group">
-                            @if($inCart)
-                                <a href="{{ route('cart') }}" class="btn-add-cart" style="text-decoration: none; justify-content: center; background: #2a2a2a;">
-                                    <i class="fas fa-shopping-cart"></i>
-                                    GO TO CART
-                                </a>
-                            @else
-                                <button type="submit" name="action" value="cart" id="addToCartBtn"
-                                    class="btn-add-cart {{ !$isInStock ? 'disabled' : '' }}">
-                                    <i class="fas fa-shopping-bag"></i>
-                                    {{ $isInStock ? 'ADD TO CART' : 'OUT OF STOCK' }}
-                                </button>
-                            @endif
+                            <button type="submit" name="action" value="cart" id="addToCartBtn"
+                                class="btn-add-cart {{ !$isInStock ? 'disabled' : '' }}">
+                                <i class="fas fa-shopping-bag"></i>
+                                {{ $isInStock ? 'ADD TO CART' : 'OUT OF STOCK' }}
+                            </button>
                             
                             <button type="submit" name="action" value="checkout" class="btn-buy-now"
                                 {{ !$isInStock ? 'disabled' : '' }}>
@@ -2679,6 +2672,8 @@
         const basePrice = {{ $product->price }};
         const baseRegularPrice = {{ $product->regular_price ?: $product->price }};
         const baseSku = "{{ $product->sku }}";
+        let cartVariantIds = {!! json_encode($cartVariantIds ?? []) !!};
+        const initialProductInCart = @json($inCart);
 
         function selectAttribute(element) {
             const attrId = element.getAttribute('data-attr-id');
@@ -2802,6 +2797,9 @@
                 return selectedAttrs.length === vValues.length && selectedAttrs.every(id => vValues.includes(id));
             });
 
+            const btn = document.getElementById('addToCartBtn');
+            const isInStock = matched ? matched.stock_quantity > 0 : {{ $product->stock_quantity > 0 ? 'true' : 'false' }};
+
             if (matched) {
                 // If variant has only one price column, assume it's the 'Sale price' 
                 // and compare with Main Regular Price or its own if available
@@ -2815,11 +2813,50 @@
 
                 // Swap Main Image and filter thumbnails for this variant
                 updateGallery(null, matched.id);
+
+                // Handle Add to Cart vs Go to Cart state
+                if (btn) {
+                    if (cartVariantIds.includes(matched.id) || cartVariantIds.includes(matched.id.toString())) {
+                        setGoToCartState(btn);
+                    } else {
+                        resetAddToCartState(btn, isInStock);
+                    }
+                }
             } else {
                 updatePriceDisplay(basePrice, baseRegularPrice);
                 document.querySelector('.product-sku').innerText = baseSku;
                 updateStockStatus({{ $product->stock_quantity }});
                 updateGallery(null, null); // Show general images
+                
+                if (btn) {
+                    // Check if the base product (no variant) is in cart
+                    if (initialProductInCart && cartVariantIds.length === 0) {
+                        setGoToCartState(btn);
+                    } else {
+                        resetAddToCartState(btn, {{ $product->stock_quantity > 0 ? 'true' : 'false' }});
+                    }
+                }
+            }
+        }
+
+        function setGoToCartState(btn) {
+            btn.innerHTML = '<i class="fas fa-shopping-cart"></i> GO TO CART';
+            btn.classList.add('go-to-cart-state');
+            btn.style.background = '#2a2a2a';
+            btn.type = 'button';
+            btn.onclick = function() { window.location.href = "{{ route('cart') }}"; };
+        }
+
+        function resetAddToCartState(btn, isInStock) {
+            btn.innerHTML = '<i class="fas fa-shopping-bag"></i> ' + (isInStock ? 'ADD TO CART' : 'OUT OF STOCK');
+            btn.classList.remove('go-to-cart-state');
+            btn.style.background = ''; // Revert to CSS default
+            btn.type = 'submit';
+            btn.onclick = null;
+            if (!isInStock) {
+                btn.classList.add('disabled');
+            } else {
+                btn.classList.remove('disabled');
             }
         }
 
@@ -3035,15 +3072,26 @@
                             toastr.success(data.message || 'Added to cart.');
                             if (window.updateMiniCart) window.updateMiniCart();
                             
-                            // Change button to GO TO CART
-                            const btn = document.getElementById('addToCartBtn');
-                            if (btn && action === 'cart') {
-                                btn.innerHTML = '<i class="fas fa-shopping-cart"></i> GO TO CART';
-                                btn.classList.add('go-to-cart-state');
-                                btn.style.background = '#2a2a2a';
-                                btn.type = 'button';
-                                btn.onclick = function() { window.location.href = "{{ route('cart') }}"; };
+                            // Re-fetch or locally update cartVariantIds if needed, 
+                            // but for simplicity we can check the current matched variant
+                            let selectedAttrs = [];
+                            document.querySelectorAll('input[id^="attr_"]').forEach(input => {
+                                if (input.value) selectedAttrs.push(parseInt(input.value));
+                            });
+                            let matched = productVariants.find(v => {
+                                if (!v.combination) return false;
+                                let vValues = Object.values(v.combination).flat().map(Number);
+                                return selectedAttrs.length === vValues.length && selectedAttrs.every(id => vValues.includes(id));
+                            });
+
+                            if (matched && !cartVariantIds.includes(matched.id)) {
+                                cartVariantIds.push(matched.id);
+                            } else if (!matched) {
+                                // If base product, we could track that too, 
+                                // but the logic usually assumes variants if present.
                             }
+                            
+                            checkVariant();
                         } else {
                             toastr.error(data.message || 'Error adding to cart.');
                         }
