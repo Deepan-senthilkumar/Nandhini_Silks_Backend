@@ -22,7 +22,10 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="space-y-1.5">
                 <label class="block text-xs font-bold text-slate-700">Full Name</label>
-                <input type="text" name="name" value="{{ old('name', $user->name) }}" required class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                <input type="text" name="name" value="{{ old('name', $user->name) }}" required 
+                    pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed"
+                    class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                @error('name') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
             </div>
             <div class="space-y-1.5">
                 <label class="block text-xs font-bold text-slate-700">Email</label>
@@ -30,7 +33,10 @@
             </div>
             <div class="space-y-1.5">
                 <label class="block text-xs font-bold text-slate-700">Phone</label>
-                <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" 
+                    pattern="[0-9]{10}" maxlength="10" minlength="10" title="Phone number must be exactly 10 digits"
+                    class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                @error('phone') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
             </div>
             <div class="space-y-1.5">
                 <label class="block text-xs font-bold text-slate-700">Role</label>
@@ -99,7 +105,9 @@
                             </form>
                         </div>
                     </div>
-                    <div class="text-xs text-slate-600 leading-relaxed">
+                    <div class="text-xs text-slate-600 leading-relaxed font-medium">
+                        <div class="font-bold text-slate-800">{{ $address->recipient_name }}</div>
+                        <div class="text-[10px] text-slate-500 mb-1 tracking-tighter">{{ $address->recipient_phone }}</div>
                         {{ $address->address1 }}<br>
                         @if($address->address2){{ $address->address2 }}<br>@endif
                         {{ $address->city }}, {{ $address->state }} {{ $address->zip }}<br>
@@ -116,8 +124,24 @@
             <h4 class="text-sm font-bold text-slate-800 mb-4">Add Address</h4>
             <form method="POST" action="{{ route('admin.users.addresses.store', $user->id) }}" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @csrf
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Recipient Full Name <span class="text-rose-500">*</span></label>
+                        <input type="text" name="recipient_name" required 
+                            pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed"
+                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800" placeholder="e.g. John Doe">
+                        @error('recipient_name') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Recipient Phone Number <span class="text-rose-500">*</span></label>
+                        <input type="text" name="recipient_phone" required 
+                            pattern="[0-9]{10}" maxlength="10" minlength="10" title="Phone number must be exactly 10 digits"
+                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800" placeholder="e.g. 9876543210">
+                        @error('recipient_phone') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Label</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Address Label</label>
                     <input type="text" name="label" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800" placeholder="Home / Office">
                 </div>
                 <div>
@@ -133,20 +157,51 @@
                     <input type="text" name="address2" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">City</label>
-                    <input type="text" name="city" required class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">City <span class="text-rose-500">*</span></label>
+                    <input type="text" name="city" required 
+                        pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed"
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    @error('city') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">State</label>
-                    <input type="text" name="state" required class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">State <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                        <select name="state" required 
+                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800 appearance-none cursor-pointer">
+                            <option value="">Select State</option>
+                            @php
+                                $states = [
+                                    "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", 
+                                    "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Goa", 
+                                    "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", 
+                                    "Kerala", "Ladakh", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", 
+                                    "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", 
+                                    "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+                                ];
+                            @endphp
+                            @foreach($states as $stateName)
+                                <option value="{{ $stateName }}" {{ old('state') == $stateName ? 'selected' : '' }}>{{ $stateName }}</option>
+                            @endforeach
+                        </select>
+                        <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-chevron-down text-[10px]"></i>
+                        </div>
+                    </div>
+                    @error('state') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">ZIP</label>
-                    <input type="text" name="zip" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    <input type="text" name="zip" 
+                        pattern="[0-9]{6}" maxlength="6" minlength="6" title="ZIP code must be exactly 6 digits"
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    @error('zip') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Country</label>
-                    <input type="text" name="country" value="India" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Country <span class="text-rose-500">*</span></label>
+                    <input type="text" name="country" value="India" 
+                        pattern="[A-Za-z\s]+" title="Only alphabets and spaces are allowed"
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    @error('country') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div class="flex items-center gap-2 md:col-span-2">
                     <input type="checkbox" name="is_default" value="1" class="accent-[#a91b43]">
@@ -159,4 +214,61 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+    // Function to restrict input to alphabets and spaces only
+    function restrictToAlphabets(event) {
+        const input = event.target;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        
+        // Remove everything except letters and spaces
+        const newValue = input.value.replace(/[^A-Za-z\s]/g, '');
+        
+        if (input.value !== newValue) {
+            input.value = newValue;
+            // Restore cursor position
+            input.setSelectionRange(start, end);
+        }
+    }
+
+    // Function to restrict input to numbers only
+    function restrictToNumbers(event) {
+        const input = event.target;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const newValue = input.value.replace(/[^0-9]/g, '');
+        if (input.value !== newValue) {
+            input.value = newValue;
+            input.setSelectionRange(start, end);
+        }
+    }
+
+    // Attach listener to relevant fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const alphaFields = [
+            'input[name="name"]',
+            'input[name="recipient_name"]',
+            'input[name="city"]',
+            'input[name="country"]'
+        ];
+        
+        const numericFields = [
+            'input[name="phone"]',
+            'input[name="recipient_phone"]',
+            'input[name="zip"]'
+        ];
+
+        alphaFields.forEach(selector => {
+            const el = document.querySelector(selector);
+            if (el) el.addEventListener('input', restrictToAlphabets);
+        });
+
+        numericFields.forEach(selector => {
+            const el = document.querySelector(selector);
+            if (el) el.addEventListener('input', restrictToNumbers);
+        });
+    });
+</script>
+@endpush
 @endsection

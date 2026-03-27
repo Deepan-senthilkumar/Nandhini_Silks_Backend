@@ -16,12 +16,6 @@
         @method('PUT')
         <div class="space-y-4">
             <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Attribute Group</label>
-                <input type="text" name="group" value="{{ $attribute->group }}" class="w-full px-4 py-2 rounded-xl border border-slate-100 focus:outline-none focus:border-[#a91b43] text-sm transition-all" required>
-                @error('group') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
-            </div>
-
-            <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Attribute Name</label>
                 <input type="text" name="name" id="attributeName" value="{{ old('name', $attribute->name) }}" class="w-full px-4 py-2 rounded-xl border border-slate-100 focus:outline-none focus:border-[#a91b43] text-sm transition-all" required>
                 @error('name') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
@@ -35,10 +29,20 @@
 
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Status</label>
-                <select name="status" class="w-full px-4 py-2 rounded-xl border border-slate-100 focus:outline-none focus:border-[#a91b43] text-sm transition-all appearance-none bg-white">
-                    <option value="1" {{ $attribute->status ? 'selected' : '' }}>Active</option>
-                    <option value="0" {{ !$attribute->status ? 'selected' : '' }}>Inactive</option>
-                </select>
+                <div class="flex bg-slate-100 p-1 rounded-xl w-fit">
+                    <label class="relative flex-1">
+                        <input type="radio" name="status" value="1" class="sr-only peer" {{ old('status', $attribute->status) == '1' ? 'checked' : '' }}>
+                        <div class="px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm text-slate-500 hover:text-slate-700">
+                            Active
+                        </div>
+                    </label>
+                    <label class="relative flex-1">
+                        <input type="radio" name="status" value="0" class="sr-only peer" {{ old('status', $attribute->status) == '0' ? 'checked' : '' }}>
+                        <div class="px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-500 hover:text-slate-700">
+                            Inactive
+                        </div>
+                    </label>
+                </div>
             </div>
 
             <div class="pt-4">

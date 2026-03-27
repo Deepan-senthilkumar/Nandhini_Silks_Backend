@@ -55,15 +55,18 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|regex:/^[0-9]{10}$/',
             'dob' => 'nullable|date',
             'gender' => 'nullable|string|max:20',
-            'account_status' => 'required|in:active,blocked,unverified',
+            'account_status' => 'required|in:active,inactive',
             'role' => 'required|string|max:50',
             'password' => 'nullable|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'name.regex' => 'The Full Name field should only contain alphabets and spaces.',
+            'phone.regex' => 'The Phone number must be exactly 10 digits.',
         ]);
 
         $data = $request->only([
@@ -105,16 +108,23 @@ class UserController extends Controller
     {
         $request->validate([
             'label' => 'nullable|string|max:50',
-            'recipient_name' => 'required|string|max:255',
-            'recipient_phone' => 'required|string|max:255',
+            'recipient_name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
+            'recipient_phone' => 'required|string|regex:/^[0-9]{10}$/',
             'address1' => 'required|string|max:255',
             'address2' => 'nullable|string|max:255',
-            'city' => 'required|string|max:100',
-            'state' => 'required|string|max:100',
-            'zip' => 'nullable|string|max:20',
-            'country' => 'nullable|string|max:100',
+            'city' => 'required|string|max:100|regex:/^[a-zA-Z\s]+$/',
+            'state' => 'required|string|max:100|regex:/^[a-zA-Z\s]+$/',
+            'zip' => 'nullable|string|regex:/^[0-9]{6}$/',
+            'country' => 'nullable|string|max:100|regex:/^[a-zA-Z\s]+$/',
             'landmark' => 'nullable|string|max:255',
             'is_default' => 'nullable|boolean',
+        ], [
+            'recipient_name.regex' => 'The Recipient Full Name should only contain alphabets and spaces.',
+            'recipient_phone.regex' => 'The Recipient Phone number must be exactly 10 digits.',
+            'city.regex' => 'The City field should only contain alphabets and spaces.',
+            'state.regex' => 'The State field should only contain alphabets and spaces.',
+            'country.regex' => 'The Country field should only contain alphabets and spaces.',
+            'zip.regex' => 'The ZIP code must be exactly 6 digits.',
         ]);
 
         $isDefault = $request->boolean('is_default');

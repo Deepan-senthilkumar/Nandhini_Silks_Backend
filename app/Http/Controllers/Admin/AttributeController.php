@@ -39,7 +39,7 @@ class AttributeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'group' => 'required|string|max:255',
+            'group' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:attributes,slug',
             'status' => 'required|boolean',
@@ -62,7 +62,7 @@ class AttributeController extends Controller
     public function update(Request $request, Attribute $attribute)
     {
         $request->validate([
-            'group' => 'required|string|max:255',
+            'group' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:attributes,slug,' . $attribute->id,
             'status' => 'required|boolean',

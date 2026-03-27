@@ -8,7 +8,7 @@
     <div class="filter-chips-section">
         <div class="chips-container">
             <span class="chip active">{{ $listing_title }}</span>
-            <span class="chip">New Arrivals</span>
+            {{-- <span class="chip">New Arrivals</span> --}}
         </div>
     </div>
 

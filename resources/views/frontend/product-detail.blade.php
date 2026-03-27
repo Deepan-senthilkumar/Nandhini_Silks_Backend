@@ -440,7 +440,7 @@
             .size-btn {
                 padding: 6px 14px !important;
                 border-radius: 9px !important;
-                font-size: 11px !important;
+                font-size: 12px !important;
                 min-width: 44px !important;
                 min-height: 36px !important;
                 line-height: 1 !important;
@@ -804,7 +804,7 @@
                 min-height: 34px !important;
                 padding: 4px 14px !important;
                 border-radius: 4px !important;
-                font-size: 11.5px !important;
+                font-size: 12.5px !important;
                 background: #fff !important;
                 border: 1px solid #e2e8f0 !important;
                 box-shadow: none !important;

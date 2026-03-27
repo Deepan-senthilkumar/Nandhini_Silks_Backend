@@ -21,14 +21,18 @@ class AdminAuthController extends Controller
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
+        ], [
+            'email.required' => 'Email address is required',
+            'email.email' => 'Please provide a valid email address',
+            'password.required' => 'Password is required',
         ]);
 
         if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'));
+            return redirect()->intended(route('admin.dashboard'))->with('success', 'Login Successful! Welcome to the Admin Portal.');
         }
 
-        return back()->withErrors([
+        return back()->with('error', 'The provided credentials do not match our records.')->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->onlyInput('email');
     }

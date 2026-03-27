@@ -40,21 +40,23 @@
                             </div>
                         </div>
 
+                        @if(isset($filterData['sub_categories']) && $filterData['sub_categories']->isNotEmpty())
                         <div class="filter-group">
-                            <h3 class="filter-title">Category</h3>
+                            <h3 class="filter-title">Sub-Category</h3>
                             <ul class="filter-group-content filter-list">
-                                @foreach($filterData['categories'] as $cat)
+                                @foreach($filterData['sub_categories'] as $subCat)
                                     <li class="filter-item">
                                         <label class="custom-checkbox">
-                                            <input type="checkbox" name="categories[]" value="{{ $cat->id }}" 
-                                                {{ in_array($cat->id, (array)request('categories', [])) ? 'checked' : '' }} onchange="this.form.submit()">
+                                            <input type="checkbox" name="sub_categories[]" value="{{ $subCat->id }}"
+                                                {{ in_array($subCat->id, (array)request('sub_categories', [])) ? 'checked' : '' }} onchange="this.form.submit()">
                                             <span class="checkmark"></span>
-                                            <span class="label-text">{{ $cat->name }}</span>
+                                            <span class="label-text">{{ $subCat->name }}</span>
                                         </label>
                                     </li>
                                 @endforeach
                             </ul>
                         </div>
+                        @endif
 
                         @foreach($filterData['attributes'] as $attr)
                             @if($attr->values->isNotEmpty())

@@ -45,7 +45,7 @@ class CategoryController extends Controller
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
-            'display_order' => 'required|integer',
+            'display_order' => 'required|integer|min:0',
             'show_in_menu' => 'nullable',
         ], [
             'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
@@ -81,7 +81,7 @@ class CategoryController extends Controller
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
-            'display_order' => 'required|integer',
+            'display_order' => 'required|integer|min:0',
             'show_in_menu' => 'nullable',
         ], [
             'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',

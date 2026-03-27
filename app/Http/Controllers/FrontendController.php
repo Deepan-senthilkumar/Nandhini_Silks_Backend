@@ -65,10 +65,18 @@ class FrontendController extends Controller
     public function category($slug, $sub_slug = null, $child_slug = null)
     {
         $actualSlug = $child_slug ?: ($sub_slug ?: $slug);
+
+        // Determine what type of page we are on and build the base query
+        $browsingType = null; // 'category', 'sub_category', 'child_category'
+        $browsingId   = null;
+        $parentCategoryId = null;
+
         $category = Category::where('slug', '=', $actualSlug)->where('status', '=', 1)->first();
         $query = Product::where('status', '=', 1);
 
         if ($category) {
+            $browsingType = 'category';
+            $browsingId   = $category->id;
             $query->where('category_id', '=', $category->id);
             $subCategories = SubCategory::where('category_id', '=', $category->id)->where('status', '=', 1)->get();
             $category->setRelation('subCategories', $subCategories);
@@ -76,12 +84,18 @@ class FrontendController extends Controller
             // Try SubCategory
             $subCategory = SubCategory::where('slug', '=', $actualSlug)->where('status', '=', 1)->first();
             if ($subCategory) {
+                $browsingType = 'sub_category';
+                $browsingId   = $subCategory->id;
+                $parentCategoryId = $subCategory->category_id;
                 $category = $subCategory;
                 $query->where('sub_category_id', '=', $subCategory->id);
             } else {
                 // Try ChildCategory
                 $childCategory = ChildCategory::where('slug', '=', $actualSlug)->where('status', '=', 1)->first();
                 if ($childCategory) {
+                    $browsingType = 'child_category';
+                    $browsingId   = $childCategory->id;
+                    $parentCategoryId = $childCategory->sub_category_id ?? null;
                     $category = $childCategory;
                     $query->where('child_category_id', '=', $childCategory->id);
                 } else {
@@ -90,34 +104,53 @@ class FrontendController extends Controller
             }
         }
 
-        // Apply Filters
-        if (request('min_price')) $query->where('price', '>=', request('min_price'));
-        if (request('max_price')) $query->where('price', '<=', request('max_price'));
-        if (request('categories')) $query->whereIn('category_id', request('categories'));
+        // -------------------------------------------------------
+        // Apply Sidebar Filters
+        // -------------------------------------------------------
+
+        // Price range
+        if (request('min_price') !== null && request('min_price') !== '') {
+            $query->where('price', '>=', (float) request('min_price'));
+        }
+        if (request('max_price') !== null && request('max_price') !== '') {
+            $query->where('price', '<=', (float) request('max_price'));
+        }
+
+        // Sub-category filter (shown in sidebar when browsing a top-level category)
+        if (request('sub_categories') && $browsingType === 'category') {
+            $query->whereIn('sub_category_id', request('sub_categories'));
+        }
+
+        // Attribute filters
         if (request('attr')) {
             foreach (request('attr') as $attr_id => $values) {
                 $query->where(function($q) use ($attr_id, $values) {
                     foreach ($values as $val_id) {
-                        $q->orWhereJsonContains('attributes->' . $attr_id, (int)$val_id)
-                          ->orWhereJsonContains('attributes->' . $attr_id, (string)$val_id);
+                        $q->orWhereJsonContains('attributes->' . $attr_id, (int) $val_id)
+                          ->orWhereJsonContains('attributes->' . $attr_id, (string) $val_id);
                     }
                 });
             }
         }
-        if (request('in_stock')) $query->where('stock_quantity', '>', 0);
+
+        // In-stock filter
+        if (request('in_stock')) {
+            $query->where('stock_quantity', '>', 0);
+        }
 
         // Sorting
         $sort = request('sort', 'popularity');
-        if ($sort == 'price_low') $query->orderBy('price', 'asc');
+        if ($sort == 'price_low')  $query->orderBy('price', 'asc');
         elseif ($sort == 'price_high') $query->orderBy('price', 'desc');
-        elseif ($sort == 'newest') $query->orderBy('created_at', 'desc');
-        else $query->orderBy('id', 'desc');
+        elseif ($sort == 'newest')     $query->orderBy('created_at', 'desc');
+        else                           $query->orderBy('id', 'desc');
 
         $products = $query->paginate(12)->appends(request()->query());
-        $filterData = $this->getFilterData();
-        
-        $view = 'frontend.category_listing';
-        return view($view, compact('category', 'products', 'filterData'));
+
+        // Build filter data scoped to the current category context
+        $filterData = $this->getFilterData($browsingType, $browsingId);
+
+        return view('frontend.category_listing', compact('category', 'products', 'filterData', 'browsingType'));
     }
 
     public function productShow($slug)
@@ -545,15 +578,33 @@ class FrontendController extends Controller
         return back()->with('success', 'Your review has been submitted and is awaiting approval.');
     }
 
-    private function getFilterData(): array
+    private function getFilterData(string $browsingType = null, int $browsingId = null): array
     {
+        // Scope price range to the current category context
+        $priceQuery = Product::where('status', '=', 1);
+        $subCategories = collect();
+
+        if ($browsingType === 'category' && $browsingId) {
+            $priceQuery->where('category_id', $browsingId);
+            // Provide sub-categories of the browsed category for the sidebar
+            $subCategories = SubCategory::where('category_id', $browsingId)
+                ->where('status', 1)
+                ->orderBy('display_order', 'asc')
+                ->get();
+        } elseif ($browsingType === 'sub_category' && $browsingId) {
+            $priceQuery->where('sub_category_id', $browsingId);
+        } elseif ($browsingType === 'child_category' && $browsingId) {
+            $priceQuery->where('child_category_id', $browsingId);
+        }
+
         return [
-            'categories' => Category::where('status', '=', 1)->orderBy('display_order', 'asc')->get(),
-            'attributes' => Attribute::with(['values' => function($q) {
+            'categories'     => Category::where('status', '=', 1)->orderBy('display_order', 'asc')->get(),
+            'sub_categories' => $subCategories,
+            'attributes'     => Attribute::with(['values' => function($q) {
                 $q->where('status', '=', 1)->orderBy('display_order', 'asc');
             }])->where('status', '=', 1)->orderBy('group')->get(),
-            'max_price' => Product::where('status', '=', 1)->max('price') ?? 50000,
-            'min_price' => Product::where('status', '=', 1)->min('price') ?? 0,
+            'max_price' => (clone $priceQuery)->max('price') ?? 50000,
+            'min_price' => (clone $priceQuery)->min('price') ?? 0,
         ];
     }
 

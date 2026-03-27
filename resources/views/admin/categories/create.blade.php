@@ -25,7 +25,7 @@
 
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Display Order <span class="text-rose-500">*</span></label>
-                    <input type="number" name="display_order" value="{{ old('display_order', 0) }}" required
+                    <input type="number" name="display_order" value="{{ old('display_order', 0) }}" required min="0"
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] focus:ring-2 focus:ring-pink-50 transition-all text-slate-800">
                 </div>
 
@@ -38,10 +38,20 @@
 
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Status <span class="text-rose-500">*</span></label>
-                    <select name="status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
-                        <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Active</option>
-                        <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive</option>
-                    </select>
+                    <div class="flex bg-slate-100 p-1 rounded-xl w-fit">
+                        <label class="relative flex-1">
+                            <input type="radio" name="status" value="1" class="sr-only peer" {{ old('status', '1') == '1' ? 'checked' : '' }}>
+                            <div class="px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm text-slate-500 hover:text-slate-700">
+                                Active
+                            </div>
+                        </label>
+                        <label class="relative flex-1">
+                            <input type="radio" name="status" value="0" class="sr-only peer" {{ old('status') == '0' ? 'checked' : '' }}>
+                            <div class="px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-500 hover:text-slate-700">
+                                Inactive
+                            </div>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="space-y-1.5 flex items-center pt-5">

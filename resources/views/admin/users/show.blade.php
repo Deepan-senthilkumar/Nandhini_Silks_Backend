@@ -80,7 +80,9 @@
                                         <span class="text-[9px] font-bold uppercase text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Default</span>
                                     @endif
                                 </div>
-                                <div class="text-xs text-slate-600 leading-relaxed">
+                                <div class="text-xs text-slate-600 leading-relaxed font-medium">
+                                    <div class="font-bold text-slate-800">{{ $address->recipient_name }}</div>
+                                    <div class="text-[10px] text-slate-500 mb-1 tracking-tighter">{{ $address->recipient_phone }}</div>
                                     {{ $address->address1 }}<br>
                                     @if($address->address2){{ $address->address2 }}<br>@endif
                                     {{ $address->city }}, {{ $address->state }} {{ $address->zip }}<br>

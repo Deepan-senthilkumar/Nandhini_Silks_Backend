@@ -49,7 +49,7 @@ class ChildCategoryController extends Controller
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
-            'display_order' => 'required|integer',
+            'display_order' => 'required|integer|min:0',
         ], [
             'slug.unique' => 'This Child Category Slug is already in use. Please choose a different one.',
         ]);
@@ -87,7 +87,7 @@ class ChildCategoryController extends Controller
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
-            'display_order' => 'required|integer',
+            'display_order' => 'required|integer|min:0',
         ], [
             'slug.unique' => 'This Child Category Slug is already in use. Please choose a different one.',
         ]);
