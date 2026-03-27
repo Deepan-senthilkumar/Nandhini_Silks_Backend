@@ -480,8 +480,9 @@
             .btn-buy-now {
                 height: 46px !important;
                 border-radius: 10px !important;
-                font-size: 11.5px !important;
-                font-weight: 700 !important;
+                font-size: 15px !important;
+                font-weight: 5  00 !important;
+                font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
                 letter-spacing: 0.5px !important;
                 gap: 7px !important;
                 padding: 0 16px !important;
@@ -825,8 +826,9 @@
                 min-height: 42px !important;
                 height: 42px !important;
                 border-radius: 6px !important;
-                font-size: 11px !important;
-                font-weight: 800 !important;
+                font-size: 12px !important;
+                font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
+                font-weight: 600 !important;
                 letter-spacing: 0.06em !important;
                 text-transform: uppercase;
                 box-shadow: none !important;
@@ -1704,7 +1706,6 @@
                 overflow: hidden !important;
                 border-radius: clamp(16px, 4vw, 26px) !important;
                 box-sizing: border-box !important;
-                background: linear-gradient(180deg, #fffaf5 0%, #f6eee6 100%) !important;
                 box-shadow: inset 0 0 0 1px rgba(110, 66, 36, 0.06), 0 14px 34px rgba(110, 66, 36, 0.1) !important;
             }
 
@@ -1975,6 +1976,7 @@
                 padding: 0 16px !important;
                 border-radius: 12px !important;
                 font-size: clamp(11px, 3vw, 12.5px) !important;
+                font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
                 letter-spacing: 0.08em !important;
                 justify-content: center !important;
             }
