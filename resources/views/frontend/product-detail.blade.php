@@ -471,26 +471,37 @@
             }
 
             .product-actions-group {
+                display: flex !important;
+                flex-direction: row !important;
                 margin-top: 0 !important;
                 align-items: stretch;
                 gap: 12px !important;
+                width: 100%;
             }
 
             .btn-add-cart,
             .btn-buy-now {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
                 height: 46px !important;
                 border-radius: 10px !important;
                 font-size: 15px !important;
-                font-weight: 5  00 !important;
+                font-weight: 600 !important;
                 font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
                 letter-spacing: 0.5px !important;
-                gap: 7px !important;
+                gap: 8px !important;
                 padding: 0 16px !important;
+                flex: 1;
+                border: none;
             }
 
             .btn-add-cart i,
             .btn-buy-now i {
                 font-size: 13px !important;
+                display: inline-flex;
+                align-items: center;
+                vertical-align: middle;
             }
 
             .quantity-picker {
@@ -1075,16 +1086,11 @@
                 box-shadow: 0 18px 38px rgba(17, 24, 39, 0.1);
             }
 
-            .recently-viewed-link {
-                display: flex;
-                flex-direction: column;
-                height: 100%;
-                text-decoration: none !important;
-                color: inherit;
-            }
-
+            .recently-viewed-link,
+            .recently-viewed-link:hover,
             .recently-viewed-link * {
                 text-decoration: none !important;
+                outline: none !important;
             }
 
             .recently-viewed-media {
@@ -1106,8 +1112,9 @@
             .recently-viewed-content {
                 display: flex;
                 flex-direction: column;
-                align-items: center;
-                text-align: center;
+                align-items: center !important;
+                text-align: center !important;
+                width: 100% !important;
                 gap: 10px;
                 flex: 1;
                 padding: 20px 20px 22px;
@@ -1158,18 +1165,25 @@
             }
 
             .recently-viewed-cta {
-                margin-top: auto;
+                margin: auto auto 0 !important;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 min-height: 46px;
-                padding: 0 18px;
+                padding: 0 24px;
                 border-radius: 999px;
-                background: #f8efe4;
-                color: #7a5a27;
+                background: #a91b43;
+                color: #fff;
                 font-size: 13px;
                 font-weight: 700;
-                letter-spacing: 0.02em;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .recently-viewed-cta:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 12px rgba(169, 27, 67, 0.2);
             }
 
             @media (max-width: 1200px) {
@@ -2420,21 +2434,18 @@
                         @if($product->reviews_count > 0)
                         <div class="product-rating">
                             <div class="stars">
-                                @php $avgRating = round($product->average_rating); @endphp
                                 @for ($i = 1; $i <= 5; $i++)
-                                    <i class="{{ $i <= $avgRating ? 'fa-solid' : 'fa-regular' }} fa-star"></i>
+                                    <i class="{{ $i <= round($product->average_rating) ? 'fas' : 'far' }} fa-star"></i>
                                 @endfor
                             </div>
                             <span>
                                 {{ number_format($product->average_rating, 1) }}
                                 @if ($product->reviews_count > 0)
-                                    ({{ $product->reviews_count }}) Reviews
+                                    ({{ $product->reviews_count }})
                                 @endif
                             </span>
                         </div>
                         @endif
-
-
                         <div class="product-price-section">
                             <span class="current-price" id="displayPrice">₹{{ number_format($product->price, 0) }}</span>
                             @if ($product->regular_price > $product->price)
@@ -2457,11 +2468,11 @@
                             </span>
                         </div>
                     </div>
-                    {{-- <p class="product-tax-note">(Inclusive of all taxes)</p> --}}
+                    <p class="product-tax-note">(Inclusive of all taxes)</p>
 
                     @if ($product->short_description)
                         <div class="product-description-short">
-                            {!! \Illuminate\Support\Str::limit(strip_tags($product->short_description), 150) !!}
+                            {!! Str::limit(strip_tags($product->short_description), 150) !!}
                         </div>
                     @endif
 
@@ -2587,12 +2598,12 @@
                         <!-- Action Buttons -->
                         <div class="product-actions-group">
                             <button type="submit" name="action" value="cart" id="addToCartBtn"
-                                class="btn-add-cart {{ !$isInStock ? 'disabled' : '' }}">
+                                class="btn-add-cart {{ !$isInStock ? 'disabled' : '' }}" {{ !$isInStock ? 'disabled' : '' }}>
                                 <i class="fas fa-shopping-bag"></i>
                                 {{ $isInStock ? 'ADD TO CART' : 'OUT OF STOCK' }}
                             </button>
                             
-                            <button type="submit" name="action" value="checkout" class="btn-buy-now"
+                            <button type="submit" name="action" value="checkout" class="btn-buy-now {{ !$isInStock ? 'disabled' : '' }}" id="buyNowBtn"
                                 {{ !$isInStock ? 'disabled' : '' }}>
                                 <i class="fas fa-bolt"></i>
                                 BUY IT NOW
@@ -2794,9 +2805,36 @@
                     <div class="swiper-wrap-outer">
                         <div class="swiper related-swiper">
                             <div class="swiper-wrapper">
-                                @foreach ($relatedProducts->concat($relatedProducts) as $product)
+                                @foreach ($relatedProducts->concat($relatedProducts) as $related)
                                     <div class="swiper-slide">
-                                        @include('frontend.partials.product-card', ['product' => $product])
+                                        <article class="product-card-v2" style="height: 100%;">
+                                            <a href="{{ route('product.show', $related->slug) }}"
+                                                style="text-decoration: none; color: inherit;">
+                                                <div class="product-image-v2">
+                                                    @php
+                                                        $relatedImage = 'images/pro.png';
+                                                        if ($related->image_path) {
+                                                            if (Str::startsWith($related->image_path, 'products/') || Str::startsWith($related->image_path, 'categories/')) {
+                                                                $relatedImage = 'uploads/' . $related->image_path;
+                                                            } else {
+                                                                $relatedImage = 'images/' . $related->image_path;
+                                                            }
+                                                        } elseif (!empty($related->images)) {
+                                                            $rImages = is_string($related->images) ? json_decode($related->images, true) : $related->images;
+                                                            if (is_array($rImages) && count($rImages) > 0) {
+                                                                $relatedImage = 'uploads/' . $rImages[0];
+                                                            }
+                                                        }
+                                                    @endphp
+                                                    <img src="{{ asset($relatedImage) }}" alt="{{ $related->name }}">
+                                                </div>
+                                                <div class="product-info-v2">
+                                                    <h3 class="product-name-v2">{{ $related->name }}</h3>
+                                                    <p class="product-price-v2">₹{{ number_format($related->price, 0) }}
+                                                    </p>
+                                                </div>
+                                            </a>
+                                        </article>
                                     </div>
                                 @endforeach
                             </div>
@@ -2851,11 +2889,11 @@
                                         : null);
                             @endphp
                             <article class="recently-viewed-card" data-product-id="{{ $recent->id }}">
-                                <button type="button" class="btn-wishlist-detail wishlist-btn"
+                                <button type="button" class="btn-wishlist-detail wishlist-btn" id="wishlistBtn_{{ $recent->id }}"
                                     aria-label="Add to Wishlist" aria-pressed="{{ $recentInWishlist ? 'true' : 'false' }}"
                                     data-product-id="{{ $recent->id }}"
                                     style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
-                                    <i class="{{ $recentInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"
+                                    <i class="{{ $recentInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="wishlistIcon_{{ $recent->id }}"
                                         style="color: #A91B43; font-size: 18px;"></i>
                                 </button>
 
@@ -3200,7 +3238,12 @@
             btn.classList.add('go-to-cart-state');
             btn.style.background = '#2a2a2a';
             btn.type = 'button';
+            btn.disabled = false;
             btn.onclick = function() { window.location.href = "{{ route('cart') }}"; };
+            
+            // Hide Buy It Now button when product is already in cart
+            const buyNowBtn = document.getElementById('buyNowBtn');
+            if (buyNowBtn) buyNowBtn.style.display = 'none';
         }
 
         function resetAddToCartState(btn, isInStock) {
@@ -3209,10 +3252,26 @@
             btn.style.background = ''; // Revert to CSS default
             btn.type = 'submit';
             btn.onclick = null;
+            
+            const buyNowBtn = document.getElementById('buyNowBtn');
             if (!isInStock) {
                 btn.classList.add('disabled');
+                btn.disabled = true;
+                if (buyNowBtn) {
+                    buyNowBtn.disabled = true;
+                    buyNowBtn.style.display = 'inline-flex'; // Keep it visible but disabled
+                    buyNowBtn.style.opacity = '0.5';
+                    buyNowBtn.style.cursor = 'not-allowed';
+                }
             } else {
                 btn.classList.remove('disabled');
+                btn.disabled = false;
+                if (buyNowBtn) {
+                    buyNowBtn.disabled = false;
+                    buyNowBtn.style.display = 'inline-flex';
+                    buyNowBtn.style.opacity = '1';
+                    buyNowBtn.style.cursor = 'pointer';
+                }
             }
         }
 
