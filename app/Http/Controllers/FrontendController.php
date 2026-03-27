@@ -148,16 +148,26 @@ class FrontendController extends Controller
 
         // Correctly check if product is in cart (handles both session and DB)
         $inCart = false;
+        $cartVariantIds = [];
+        $productId = $product->id;
         if (Auth::guard('web')->check()) {
-            $inCart = \App\Models\CartItem::where('user_id', Auth::guard('web')->id())
-                ->where('product_id', $product->id)
+            $cartVariantIds = \App\Models\CartItem::where('user_id', Auth::guard('web')->id())
+                ->where('product_id', $productId)
+                ->pluck('product_variant_id')
+                ->filter()
+                ->toArray();
+            $inCart = !empty($cartVariantIds) || \App\Models\CartItem::where('user_id', Auth::guard('web')->id())
+                ->where('product_id', $productId)
+                ->whereNull('product_variant_id')
                 ->exists();
         } else {
             $cart = session()->get('cart', []);
-            $inCart = collect($cart)->contains('product_id', $product->id);
+            $cartItems = collect($cart)->where('product_id', $productId);
+            $cartVariantIds = $cartItems->pluck('variant_id')->filter()->toArray();
+            $inCart = $cartItems->isNotEmpty();
         }
 
-        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist', 'inCart', 'userReview'));
+        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist', 'inCart', 'cartVariantIds', 'userReview'));
     }
 
     public function about() { return view('frontend.about'); }
