@@ -718,14 +718,8 @@
             .product-grid-main:not(.view-list) .product-name-v2 {
                 font-size: inherit !important;
             }
-            .product-grid-main.view-list .product-card-v2 {
-                grid-template-columns: 160px 1fr 180px !important;
-                grid-template-areas: "image info actions" !important;
-                gap: 25px !important;
-                padding: 20px !important;
-            }
-            .product-grid-main.view-list .product-image-v2 {
-                height: 200px !important;
+            .product-grid-main:last-child {
+                margin-bottom: 0 !important;
             }
         }
     </style>

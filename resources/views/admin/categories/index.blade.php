@@ -77,6 +77,7 @@
                     <th class="pb-3 font-bold">Details</th>
                     <th class="pb-3 font-bold">Order</th>
                     <th class="pb-3 font-bold">Status</th>
+                    <th class="pb-3 font-bold">In Menu</th>
                     <th class="pb-3 font-bold text-right">Actions</th>
                 </tr>
             </thead>
@@ -103,6 +104,11 @@
                     <td class="py-2.5">
                         <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $category->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
                             {{ $category->status ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="py-2.5 text-center">
+                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $category->show_in_menu ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-600' }}">
+                            {{ $category->show_in_menu ? 'Shown' : 'Hidden' }}
                         </span>
                     </td>
                     <td class="py-2.5 text-right">

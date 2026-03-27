@@ -47,6 +47,14 @@
                         <option value="0" {{ old('status', $category->status) == '0' ? 'selected' : '' }}>Inactive</option>
                     </select>
                 </div>
+
+                <div class="space-y-1.5 flex items-center pt-5">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="show_in_menu" value="1" class="sr-only peer" {{ old('show_in_menu', $category->show_in_menu) ? 'checked' : '' }}>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#a91b43]"></div>
+                        <span class="ms-3 text-xs font-bold text-slate-700">Show in Header Menu</span>
+                    </label>
+                </div>
             </div>
 
             <div class="space-y-1.5">

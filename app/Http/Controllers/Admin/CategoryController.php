@@ -46,6 +46,7 @@ class CategoryController extends Controller
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
             'display_order' => 'required|integer',
+            'show_in_menu' => 'nullable',
         ], [
             'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
         ]);
@@ -58,6 +59,7 @@ class CategoryController extends Controller
             $data['image'] = 'categories/'.$imageName;
         }
 
+        $data['show_in_menu'] = $request->has('show_in_menu') ? 1 : 0;
         Category::create($data);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
@@ -80,6 +82,7 @@ class CategoryController extends Controller
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
             'display_order' => 'required|integer',
+            'show_in_menu' => 'nullable',
         ], [
             'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
         ]);
@@ -95,6 +98,7 @@ class CategoryController extends Controller
             $data['image'] = 'categories/'.$imageName;
         }
 
+        $data['show_in_menu'] = $request->has('show_in_menu') ? 1 : 0;
         $category->update($data);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
