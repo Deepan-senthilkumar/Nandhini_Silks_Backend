@@ -393,16 +393,23 @@
         }
 
         .collection-cta {
-            width: 90px;
-            height: 28px;
+            width: auto;
+            min-width: 110px;
+            height: 32px;
             border-radius: 8px;
             background: #f3a349;
             color: #ffffff;
-            font-size: 16px;
-            font-weight: 300;
-            text-decoration: underline;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
             box-shadow: none;
             transition: opacity 0.3s;
+            border: none;
+            cursor: pointer;
         }
 
         .collection-cta:hover {
@@ -1521,8 +1528,7 @@
                                         <h3 class="collection-name">{{ $sub->name }}</h3>
                                     </a>
                                     <button class="collection-cta" type="button"
-                                        onclick="window.location.href='{{ route('category.show', $sub->slug) }}'">Shop
-                                        Now</button>
+                                        onclick="window.location.href='{{ route('category.show', $sub->slug) }}'">Shop Now</button>
                                 </article>
                             </div>
                         @empty
