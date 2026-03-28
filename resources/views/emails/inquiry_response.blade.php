@@ -26,8 +26,7 @@
         
         <p style="color: #777; font-size: 14px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             Best Regards,<br>
-            <strong>Nandhini Silks Team</strong><br>
-            <span style="font-size: 12px;">{{ config('app.name') }}</span>
+            <strong>Nandhini Silks Team</strong>
         </p>
     </div>
 </body>
