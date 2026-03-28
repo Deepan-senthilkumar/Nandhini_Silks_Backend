@@ -572,6 +572,7 @@ class FrontendController extends Controller
         ]);
 
         $review = \App\Models\ProductReview::where('id', '=', $id)->where('user_id', '=', Auth::id())->firstOrFail();
+        $data['status'] = 0;
         $review->update($data);
         return back()->with('success', 'Review updated successfully.');
     }
@@ -612,7 +613,7 @@ class FrontendController extends Controller
             ]
         );
 
-        return back()->with('success', 'Your review has been submitted and is awaiting approval.');
+        return back()->with('success', 'Your review has been submitted.');
     }
 
     private function getFilterData(string $browsingType = null, int $browsingId = null): array

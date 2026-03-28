@@ -228,7 +228,7 @@
                                         <p style="font-size: 12px; color: #777;">Added on {{ $review->created_at->format('M d, Y') }}</p>
                                     </div>
                                 </div>
-                                <button class="btn-review-now">Review Now</button>
+                                <button class="btn-review-now">Under Review</button>
                             </div>
                         @empty
                             <div style="text-align: center; padding: 40px; color: #999;">No pending reviews.</div>

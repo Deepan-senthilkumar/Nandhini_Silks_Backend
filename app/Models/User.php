@@ -56,6 +56,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'dob' => 'date',
             'last_login_at' => 'datetime',
+            'otp_expires_at' => 'datetime',
         ];
     }
 

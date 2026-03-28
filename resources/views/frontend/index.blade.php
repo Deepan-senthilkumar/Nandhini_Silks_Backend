@@ -412,8 +412,26 @@
         }
 
         .featured-name {
-            min-height: 10px;
-            margin-bottom: 6px !important;
+            min-height: auto;
+            margin-bottom: 4px !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
+        .read-more-link {
+            display: inline-block;
+            font-size: 12px;
+            color: #927541;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .read-more-link:hover {
+            text-decoration: underline;
         }
 
         .featured-footer {
@@ -1173,6 +1191,9 @@
             box-sizing: border-box;
             text-align: left !important;
             margin-bottom: 0 !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         @media (min-width: 641px) {
@@ -1548,7 +1569,8 @@
                                                 @endif
                                                 
                                             </div>
-                                            <h3 class="featured-name">{{ $product->name }}</h3>
+                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 25) }}</h3>
+                                            <span class="read-more-link">Read More...</span>
                                         </a>
                                         @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                         <div class="featured-footer">
@@ -1623,7 +1645,8 @@
                                                     <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
                                                 @endif
                                             </div>
-                                            <h3 class="featured-name">{{ $product->name }}</h3>
+                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 25) }}</h3>
+                                            <span class="read-more-link">Read More...</span>
                                         </a>
                                         @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                         <div class="featured-footer">
