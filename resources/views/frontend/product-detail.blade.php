@@ -57,7 +57,7 @@
 
             .attribute-option.active.color-swatch {
                 box-shadow: 0 0 0 2px #fff, 0 0 0 4px #A91B43 !important;
-                transform: scale(1.15);
+                transform: scale(0.8);
                 z-index: 2;
             }
 
@@ -1019,7 +1019,6 @@
             }
 
             .related-products {
-                margin-top: 64px;
                 padding-top: 48px;
                 border-top: 1px solid #eee;
             }
@@ -2152,8 +2151,6 @@
             }
 
             .product-detail-page .color-swatch {
-                width: clamp(30px, 8.5vw, 36px) !important;
-                height: clamp(30px, 8.5vw, 36px) !important;
                 flex: 0 0 auto !important;
                 display: inline-flex !important;
             }

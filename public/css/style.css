@@ -1074,7 +1074,7 @@ html, body {
 .testimonial-vector-wrap {
   width: 130px;
   height: 94px;
-  margin: 0 auto 24px;
+  margin: 0 auto 0px;
   border-radius: 8px;
   background: #ffffff;
   display: flex;
@@ -1083,12 +1083,11 @@ html, body {
 }
 
 .testimonial-vector {
-  max-width: 110px;
+  max-width: 80px;
   width: 100%;
   height: auto;
   display: block;
-  margin-top: 20px;
-  margin-bottom: 20px;
+
 }
 
 .testimonial-marquee {
@@ -3236,7 +3235,7 @@ html, body {
 
 .breadcrumb {
   margin-bottom: 15px;
-  font-size: 17px;
+  font-size: 13px;
   color: #666;
 }
 
@@ -3312,12 +3311,19 @@ html, body {
 }
 
 .sort-select {
-  padding: 8px 12px;
+  padding: 8px 30px 8px 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 17px;
   color: #333;
   outline: none;
+  background-color: #fff;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A91B43' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
 }
 
 .product-grid-main {
@@ -3409,6 +3415,12 @@ html, body {
   color: #333;
   margin: 5px 0 8px;
   line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 2.6em; /* Ensures consistent alignment across the grid */
 }
 
 .product-price-v2 {
@@ -6404,7 +6416,6 @@ body.menu-open {
     display: flex !important;
     justify-content: center !important;
     align-items: baseline !important;
-    gap: 8px !important;
 }
 
 .product-price-old, .recently-viewed-price-old {
@@ -7372,4 +7383,94 @@ body.menu-open {
     align-self: end !important;
     margin: 0 !important;
   }
+}
+
+/* --- MOBILE & LAYOUT POLISH (Task Refinements) --- */
+
+/* 1. Mobile Full-Screen for Inner Pages (5px Padding) */
+@media (max-width: 768px) {
+    body.inner-page .page-shell {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Ensure breadcrumbs and headers respect the 5px padding */
+    body.inner-page .breadcrumb,
+    body.inner-page h1.auth-title {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+}
+
+/* 2. Footer White Space Fix (Global) */
+.category-page, 
+.search-results-page, 
+.cart-page, 
+.wishlist-page, 
+.checkout-page,
+.order-history-page {
+    background: #fffcf0 !important; /* Unified cream background */
+    margin-bottom: 0 !important;
+    padding-bottom: 40px !important;
+}
+
+main > section:last-of-type,
+main > div:last-of-type {
+    margin-bottom: 0 !important;
+}
+
+.site-footer {
+    margin-top: 0 !important;
+    border-top: none !important;
+}
+
+/* 3. Restore "View Details" Button on Mobile Grid View */
+@media (max-width: 768px) {
+    /* Target the button in the default 2-column grid view */
+    .product-grid-main:not(.view-list) .product-card-v2 .add-to-cart-v2 {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        height: 34px !important;
+        background: #A91B43 !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        text-decoration: none !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin-top: 10px !important;
+        padding: 0 !important;
+    }
+
+    /* Small adjustment to info section to make room */
+    .product-grid-main:not(.view-list) .product-info-v2 {
+        padding-bottom: 5px !important;
+    }
+}
+
+/* 4. Filter Icon Rotation & Polish */
+.filter-group .filter-title::after {
+    transition: transform 0.3s ease !important;
+}
+
+.filter-group.is-open .filter-title::after {
+    transform: rotate(180deg) !important;
+}
+
+/* Enforce 2-line title cutoff globally */
+.product-name-v2, .category-name {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    min-height: calc(1.3em * 2);
 }

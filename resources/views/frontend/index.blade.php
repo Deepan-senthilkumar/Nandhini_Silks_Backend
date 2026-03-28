@@ -216,13 +216,16 @@
 
         .collection-title,
         .featured-title,
-        .category-title,
-        .testimonial-title {
+        .category-title {
             margin-bottom: 30px !important;
             margin-left: auto;
             margin-right: auto;
             text-align: center;
             line-height: 1.15;
+        }
+
+        .testimonial-title {
+            margin-bottom: 10px !important;
         }
 
         .collection-swiper,
@@ -1492,19 +1495,21 @@
             .hero-swiper,
             .hero-swiper .swiper-slide {
                 width: 100%;
-                height: auto !important;
+                height: 200px !important;
+            }
+
+            .hero {
+                padding-bottom: 10px;
             }
 
             .hero-swiper .swiper-slide {
-                aspect-ratio: var(--hero-banner-ratio);
-                background: #f7f1e5;
                 overflow: hidden;
             }
 
             .hero-swiper .swiper-slide img {
                 width: 100% !important;
                 height: 100% !important;
-                object-fit: contain !important;
+                object-fit: cover !important;
                 object-position: center;
                 display: block;
             }
@@ -1877,10 +1882,10 @@
                 const enableCategoryLoop = categorySlideCount > 6;
 
                 new Swiper('.category-swiper', {
-                    slidesPerView: 2,
+                    slidesPerView: 1,
                     slidesPerGroup: 1,
                     spaceBetween: 10,
-                    centeredSlides: true,
+                    centeredSlides: false,
                     speed: 500,
                     loop: enableCategoryLoop,
                     watchOverflow: false,
