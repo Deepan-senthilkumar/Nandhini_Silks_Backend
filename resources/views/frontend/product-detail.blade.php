@@ -2876,7 +2876,7 @@
                                                 </div>
                                                 <div class="product-info-v2" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
                                                     <h3 class="product-name-v2" style="margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #1a1a1a;">{{ \Illuminate\Support\Str::limit($related->name, 55) }}</h3>
-                                                    <span class="read-more-link" style="font-size: 12px; color: var(--pink); font-weight: 600; text-decoration: underline; margin-bottom: 8px; display: block;">Read More...</span>
+                                                    {{-- <span class="read-more-link" style="font-size: 12px; color: var(--pink); font-weight: 600; text-decoration: underline; margin-bottom: 8px; display: block;">Read More...</span> --}}
                                                 <div class="product-price-v2" style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px;">
                                                     @if($related->sale_price > 0)
                                                         <span class="price-current">₹{{ number_format($related->sale_price, 0) }}</span>
@@ -2963,7 +2963,7 @@
                                             {{ $recent->category->name ?? 'Collection' }}
                                         </span>
                                         <h3 class="recently-viewed-name">{{ \Illuminate\Support\Str::limit($recent->name, 55) }}</h3>
-                                        <span class="read-more-link" style="font-size: 12px; color: var(--pink); font-weight: 600; text-decoration: underline; margin-bottom: 8px; display: block;">Read More...</span>
+                                        {{-- <span class="read-more-link" style="font-size: 12px; color: var(--pink); font-weight: 600; text-decoration: underline; margin-bottom: 8px; display: block;">Read More...</span> --}}
                                         <div class="recently-viewed-price">
                                             <span class="recently-viewed-price-current">
                                                 ₹{{ number_format($recentPrice, 0) }}

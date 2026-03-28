@@ -1572,7 +1572,7 @@
                                                 
                                             </div>
                                             <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
-                                            <span class="read-more-link">Read More...</span>
+                                            {{-- <span class="read-more-link">Read More...</span> --}}
                                         </a>
                                         @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                         <div class="featured-footer">

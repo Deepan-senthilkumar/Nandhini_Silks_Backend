@@ -43,7 +43,7 @@
             @endif
             <span class="product-category-v2">{{ $product->category->name ?? 'Collection' }}</span>
             <h3 class="product-name-v2">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
-            <span class="read-more-link">Read More...</span>
+            {{-- <span class="read-more-link">Read More...</span> --}}
             <p class="product-desc-v2">{{ \Illuminate\Support\Str::limit(strip_tags($product->description), 100) }}</p>
             <div class="product-price-v2">
                 @if($product->sale_price > 0)
