@@ -1385,11 +1385,8 @@
                                                     }
                                                 @endphp
                                                 <img src="{{ asset($productImage) }}" alt="{{ $product->name }}" />
-                                                @if ($product->is_featured)
-                                                    <span class="featured-badge">New Arrival</span>
-                                                @endif
                                                 @if ($product->discount_percent > 0)
-                                                    <span class="featured-badge" style="top: 40px;">{{ round($product->discount_percent) }}% Off</span>
+                                                    <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
                                                 @endif
                                                 
                                             </div>
