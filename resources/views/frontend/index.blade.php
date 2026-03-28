@@ -1809,7 +1809,8 @@
                 new Swiper('.category-swiper', {
                     slidesPerView: 2,
                     slidesPerGroup: 1,
-                    spaceBetween: 8,
+                    spaceBetween: 10,
+                    centeredSlides: true,
                     speed: 500,
                     loop: enableCategoryLoop,
                     watchOverflow: false,
