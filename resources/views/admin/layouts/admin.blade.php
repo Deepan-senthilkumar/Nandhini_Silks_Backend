@@ -430,7 +430,7 @@
         <a href="{{ route('admin.dashboard') }}">
             <div class="px-6 py-8 border-b border-slate-50 flex flex-col items-center">
                 <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks"
-                    class="h-14 w-auto mb-2">
+                    class="" style="width: 120px; height: auto;">
             </div>
         </a>
         <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
@@ -657,11 +657,11 @@
         <header class="flex justify-between items-center mb-8">
             <div>
                 <h1 class="text-2xl font-black text-slate-900 tracking-tight">@yield('title', 'Dashboard')</h1>
-                <div class="flex items-center space-x-2 mt-1">
+                {{-- <div class="flex items-center space-x-2 mt-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Nandhini Silks Console •
                         Live</p>
-                </div>
+                </div> --}}
             </div>
 
             <div class="flex items-center space-x-4">

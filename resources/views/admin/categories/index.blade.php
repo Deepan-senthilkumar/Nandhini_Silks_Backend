@@ -102,12 +102,12 @@
                     </td>
                     <td class="py-2.5 text-xs text-slate-500 font-bold text-center">{{ $category->display_order }}</td>
                     <td class="py-2.5 text-center">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $category->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                        <span class="px-2 py-0.5 rounded-md text-[7px] font-bold uppercase tracking-tighter {{ $category->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
                             {{ $category->status ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
                     <td class="py-2.5 text-center">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $category->show_in_menu ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-600' }}">
+                        <span class="px-2 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-tighter {{ $category->show_in_menu ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-600' }}">
                             {{ $category->show_in_menu ? 'Shown' : 'Hidden' }}
                         </span>
                     </td>
