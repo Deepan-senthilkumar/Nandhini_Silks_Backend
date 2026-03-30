@@ -153,9 +153,9 @@
                                         default => 'status-pending',
                                     };
                                 @endphp
-                                <a href="{{ url('order-detail') }}?id={{ $order->id }}" class="order-item-mini">
+                                <a href="{{ url('order-detail') }}?id={{ $order->order_number }}" class="order-item-mini">
                                     <div class="mini-order-info">
-                                        <span class="mini-order-id">#NS{{ $order->id }}</span>
+                                        <span class="mini-order-id">#{{ $order->order_number }}</span>
                                         <span class="mini-order-date">{{ $order->created_at->format('M d, Y') }}</span>
                                     </div>
                                     <span class="status-badge {{ $orderStatusClass }}">{{ ucfirst($orderStatus) }}</span>

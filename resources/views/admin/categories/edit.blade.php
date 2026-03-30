@@ -117,12 +117,39 @@
         nameInput.addEventListener('input', function() {
             slugInput.value = slugify(this.value);
             checkSlug(slugInput.value);
+            checkName(this.value);
         });
 
         slugInput.addEventListener('input', function() {
             this.value = slugify(this.value);
             checkSlug(this.value);
         });
+
+        function checkName(name) {
+            clearTimeout(timer);
+            if (!name) return;
+            
+            timer = setTimeout(() => {
+                $.get('{{ route("admin.categories.check-name") }}', { name: name, id: currentId }, function(data) {
+                    const errorId = 'name-error';
+                    let errorMsg = document.getElementById(errorId);
+                    
+                    if (data.exists) {
+                        if (!errorMsg) {
+                            errorMsg = document.createElement('p');
+                            errorMsg.id = errorId;
+                            errorMsg.className = 'text-rose-500 text-[10px] mt-1 font-bold';
+                            nameInput.parentNode.appendChild(errorMsg);
+                        }
+                        errorMsg.textContent = 'This category name is already taken!';
+                        nameInput.classList.add('border-rose-500');
+                    } else {
+                        if (errorMsg) errorMsg.remove();
+                        nameInput.classList.remove('border-rose-500');
+                    }
+                });
+            }, 500);
+        }
 
         function checkSlug(slug) {
             clearTimeout(timer);

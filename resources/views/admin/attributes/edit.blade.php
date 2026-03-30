@@ -55,9 +55,73 @@
 </div>
 @push('scripts')
 <script>
-    document.getElementById('attributeName').addEventListener('input', function() {
-        document.getElementById('attributeSlug').value = slugify(this.value);
+    const nameInput = document.getElementById('attributeName');
+    const slugInput = document.getElementById('attributeSlug');
+    const currentId = '{{ $attribute->id }}';
+    let timer;
+
+    nameInput.addEventListener('input', function() {
+        slugInput.value = slugify(this.value);
+        checkSlug(slugInput.value);
+        checkName(this.value);
     });
+
+    slugInput.addEventListener('input', function() {
+        this.value = slugify(this.value);
+        checkSlug(this.value);
+    });
+
+    function checkName(name) {
+        clearTimeout(timer);
+        if (!name) return;
+        
+        timer = setTimeout(() => {
+            $.get('{{ route("admin.attributes.check-name") }}', { name: name, id: currentId }, function(data) {
+                const errorId = 'name-error';
+                let errorMsg = document.getElementById(errorId);
+                
+                if (data.exists) {
+                    if (!errorMsg) {
+                        errorMsg = document.createElement('p');
+                        errorMsg.id = errorId;
+                        errorMsg.className = 'text-rose-500 text-[10px] mt-1 font-bold';
+                        nameInput.parentNode.appendChild(errorMsg);
+                    }
+                    errorMsg.textContent = 'This attribute name is already taken!';
+                    nameInput.classList.add('border-rose-500');
+                } else {
+                    if (errorMsg) errorMsg.remove();
+                    nameInput.classList.remove('border-rose-500');
+                }
+            });
+        }, 500);
+    }
+
+    function checkSlug(slug) {
+        clearTimeout(timer);
+        if (!slug) return;
+        
+        timer = setTimeout(() => {
+            $.get('{{ route("admin.attributes.check-slug") }}', { slug: slug, id: currentId }, function(data) {
+                const errorId = 'slug-error';
+                let errorMsg = document.getElementById(errorId);
+                
+                if (data.exists) {
+                    if (!errorMsg) {
+                        errorMsg = document.createElement('p');
+                        errorMsg.id = errorId;
+                        errorMsg.className = 'text-rose-500 text-[10px] mt-1 font-bold';
+                        slugInput.parentNode.appendChild(errorMsg);
+                    }
+                    errorMsg.textContent = 'This slug is already taken!';
+                    slugInput.classList.add('border-rose-500');
+                } else {
+                    if (errorMsg) errorMsg.remove();
+                    slugInput.classList.remove('border-rose-500');
+                }
+            });
+        }, 500);
+    }
 </script>
 @endpush
 @endsection

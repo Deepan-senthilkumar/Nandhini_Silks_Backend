@@ -556,7 +556,7 @@
 
         <div class="order-detail-header">
             <div>
-                <h1 class="order-id-badge">Order #NS{{ $order->id }}</h1>
+                <h1 class="order-id-badge">Order #{{ $order->order_number }}</h1>
                 <p style="color: #999; margin-top: 5px;">Placed on {{ $order->created_at->format('M d, Y') }} &middot; {{ $order->created_at->format('h:i A') }}</p>
             </div>
             <div class="order-actions-top">

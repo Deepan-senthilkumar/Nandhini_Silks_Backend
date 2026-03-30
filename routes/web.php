@@ -15,6 +15,8 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\InquiryController;
+use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\AttributeValueController;
 
 Route::post('/addresses', [UserAddressController::class, 'store'])->name('addresses.store');
 
@@ -122,10 +124,18 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
-        // Slug Uniqueness Checks (Must be above resources to avoid conflict with show() method)
+        // Slug & Name Uniqueness Checks (Must be above resources to avoid conflict with show() method)
         Route::get('/categories/check-slug', [CategoryController::class, 'checkSlug'])->name('admin.categories.check-slug');
+        Route::get('/categories/check-name', [CategoryController::class, 'checkName'])->name('admin.categories.check-name');
+        
         Route::get('/sub-categories/check-slug', [SubCategoryController::class, 'checkSlug'])->name('admin.sub-categories.check-slug');
+        Route::get('/sub-categories/check-name', [SubCategoryController::class, 'checkName'])->name('admin.sub-categories.check-name');
+        
         Route::get('/child-categories/check-slug', [ChildCategoryController::class, 'checkSlug'])->name('admin.child-categories.check-slug');
+        Route::get('/child-categories/check-name', [ChildCategoryController::class, 'checkName'])->name('admin.child-categories.check-name');
+
+        Route::get('/attributes/check-slug', [AttributeController::class, 'checkSlug'])->name('admin.attributes.check-slug');
+        Route::get('/attributes/check-name', [AttributeController::class, 'checkName'])->name('admin.attributes.check-name');
 
         // Category Management
         Route::resource('categories', CategoryController::class)->names('admin.categories');

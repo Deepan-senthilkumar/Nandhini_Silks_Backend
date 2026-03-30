@@ -132,5 +132,19 @@ class SubCategoryController extends Controller
             'slug' => $slug
         ]);
     }
+
+    public function checkName(Request $request)
+    {
+        $name = $request->name;
+        $query = SubCategory::where('name', $name);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists
+        ]);
+    }
 }
 

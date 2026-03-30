@@ -386,7 +386,7 @@
                                 <div class="order-meta">
                                     <div class="meta-item">
                                         <span class="meta-label">Order ID</span>
-                                        <span class="meta-value">#NS{{ $order->id }}</span>
+                                        <span class="meta-value">#{{ $order->order_number }}</span>
                                     </div>
                                     <div class="meta-item">
                                         <span class="meta-label">Date Placed</span>

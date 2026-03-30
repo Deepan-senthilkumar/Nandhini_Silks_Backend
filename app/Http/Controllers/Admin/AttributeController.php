@@ -82,4 +82,37 @@ class AttributeController extends Controller
         $attribute->delete();
         return redirect()->route('admin.attributes.index')->with('success', 'Attribute deleted successfully.');
     }
+
+    public function checkSlug(Request $request)
+    {
+        $slug = Str::slug($request->name);
+        if ($request->filled('slug')) {
+            $slug = Str::slug($request->slug);
+        }
+
+        $query = Attribute::where('slug', $slug);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists,
+            'slug' => $slug
+        ]);
+    }
+
+    public function checkName(Request $request)
+    {
+        $name = $request->name;
+        $query = Attribute::where('name', $name);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists
+        ]);
+    }
 }

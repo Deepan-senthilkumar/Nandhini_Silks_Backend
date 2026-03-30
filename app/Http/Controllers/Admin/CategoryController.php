@@ -121,7 +121,7 @@ class CategoryController extends Controller
             $slug = Str::slug($request->slug);
         }
 
-        $query = Category::where('slug', $slug);
+        $query = Category::where('slug', '=', $slug);
         if ($request->filled('id')) {
             $query->where('id', '!=', $request->id);
         }
@@ -130,6 +130,20 @@ class CategoryController extends Controller
         return response()->json([
             'exists' => $exists,
             'slug' => $slug
+        ]);
+    }
+
+    public function checkName(Request $request)
+    {
+        $name = $request->name;
+        $query = Category::where('name', '=', $name);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists
         ]);
     }
 }
