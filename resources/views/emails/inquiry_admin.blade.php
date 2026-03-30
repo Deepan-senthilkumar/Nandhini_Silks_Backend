@@ -29,6 +29,10 @@
                 View Details in Admin Panel
             </a>
         </div>
+        <div style="padding-top: 20px; text-align: center; color: #bbb; font-size: 11px;">
+            &copy; {{ date('Y') }} Nandhini Silks. Arani, Tamil Nadu.
+            <span style="display:none !important; font-size:0; line-height:0;">{{ microtime() }}</span>
+        </div>
     </div>
 </body>
 </html>

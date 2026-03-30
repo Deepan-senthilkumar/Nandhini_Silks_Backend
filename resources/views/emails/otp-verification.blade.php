@@ -12,14 +12,14 @@
         .content { padding: 45px 35px; text-align: center; }
         .otp-box { background-color: #fdf2f8; border: 2px dashed #a91b43; padding: 25px; border-radius: 15px; margin: 30px auto; width: fit-content; }
         .otp-code { font-size: 38px; font-weight: 900; color: #a91b43; letter-spacing: 12px; margin: 0; }
-        .footer { padding: 30px; text-align: center; color: #888; font-size: 13px; border-top: 1px solid #eee; background-color: #fafafa; }
+        .footer { padding: 20px; text-align: center; color: #999; font-size: 12px; max-width: 600px; margin: 0 auto; }
     </style>
 </head>
 <body>
     <div class="wrapper">
         <div class="header">
             <img src="{{ asset('images/nandhini-logo.png') }}" class="logo" alt="Nandhini Silks">
-            <h1 style="color: #fff; margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;text-align: center !important;">Verification Code</h1>
+            <h1 style="color: #fff; margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; text-align: center !important;">Verification Code</h1>
         </div>
         <div class="content" style="padding:30px;">
             <h2 style="color: #111; font-weight: 800; margin-top: 0;">Confirm Your Identity</h2>
@@ -31,10 +31,11 @@
 
             <p style="color: #999; font-size: 14px;">This code will expire in 10 minutes. <br>Please do not share this code with anyone.</p>
             
-            <p style="margin-top: 40px; font-weight: 600; color: #444;">Happy Shopping!</p>
+            <p style="margin-top: 20px; font-weight: 600; color: #444;">Happy Shopping!</p>
         </div>
-        <div class="footer text-center">
-            &copy; {{ date('Y') }} Nandhini Silks. Arani, Tamil Nadu. <br>
+        <div style="padding: 20px; text-align: center; color: #999; font-size: 11px; border-top: 1px solid #f9fafb;">
+            &copy; {{ date('Y') }} Nandhini Silks. Arani, Tamil Nadu.
+            <span style="display:none !important; font-size:0; line-height:0;">{{ microtime() }}</span>
         </div>
     </div>
 </body>
