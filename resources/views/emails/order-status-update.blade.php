@@ -57,17 +57,26 @@
 
             <div class="order-info">
                 <p><strong>Order Number:</strong> #{{ $order->order_number }}</p>
+                <p><strong>Order Date:</strong> {{ $order->created_at->format('d M, Y') }}</p>
                 @if($order->tracking_number)
                 <p><strong>Tracking Number:</strong> #{{ $order->tracking_number }}</p>
                 @endif
                 @if($order->courier_name)
                 <p><strong>Courier:</strong> {{ $order->courier_name }}</p>
                 @endif
-                <p><strong>Delivery Address:</strong> {{ $order->delivery_address }}</p>
+                <p><strong>Payment Status:</strong> {{ strtoupper($order->payment_status) }}</p>
+                <p><strong>Delivery To:</strong> {{ $order->delivery_address }}</p>
             </div>
 
-            <h3 style="color: #111; border-bottom: 2px solid #fdf2f8; padding-bottom: 10px; margin-top: 35px;">Items</h3>
+            <h3 style="color: #111; border-bottom: 2px solid #fdf2f8; padding-bottom: 10px; margin-top: 35px;">Order Summary</h3>
             <table class="table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding: 12px; color: #111; border-bottom: 2px solid #f0f0f0;">Product</th>
+                        <th style="text-align: center; padding: 12px; color: #111; border-bottom: 2px solid #f0f0f0;">Qty</th>
+                        <th style="text-align: right; padding: 12px; color: #111; border-bottom: 2px solid #f0f0f0;">Price</th>
+                    </tr>
+                </thead>
                 <tbody>
                     @foreach($order->items as $item)
                     <tr>
@@ -77,41 +86,46 @@
                             <br><span style="color: #999; font-size: 11px;">{{ $item->size }}{{ $item->size && $item->color ? ' | ' : '' }}{{ $item->color }}</span>
                             @endif
                         </td>
-                        <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: center; font-weight: 700; color: #111;">{{ $item->quantity }}x</td>
+                        <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: center; font-weight: 700; color: #111;">{{ $item->quantity }}</td>
+                        <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">₹{{ number_format($item->total, 0) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
 
-            <div class="order-summary" style="background-color: #fdfaf0; border: 1px dashed #ad8b4e; padding: 20px; border-radius: 12px; margin: 25px 0;">
-                <h3 style="color: #111; border-bottom: 2px solid #fdf2f8; padding-bottom: 10px; margin-top: 35px;">Order Summary</h3>
-                <table class="table" style="width: 100%;">
-                    <tbody>
-                        <tr>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">Subtotal</td>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">&#8377;{{ number_format($order->sub_total, 2) }}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">Shipping</td>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">{{ $order->shipping > 0 ? '₹'.number_format($order->shipping, 2) : 'FREE' }}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">Tax (GST)</td>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">&#8377;{{ number_format($order->tax, 2) }}</td>
-                        </tr>
-                        @if($order->discount > 0)
-                        <tr>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">Discount</td>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">-&#8377;{{ number_format($order->discount, 2) }}</td>
-                        </tr>
-                        @endif
-                        <tr>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;"><strong>Total</strong></td>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">&#8377;{{ number_format($order->grand_total, 2) }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <!-- Totals Section using Table for better alignment -->
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 30px;">
+                <tr>
+                    <td align="right">
+                        <table border="0" cellspacing="0" cellpadding="0" style="width: 250px;">
+                            <tr>
+                                <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Subtotal:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->sub_total, 0) }}</td>
+                            </tr>
+                            @if($order->tax > 0)
+                            <tr>
+                                <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Tax:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->tax, 0) }}</td>
+                            </tr>
+                            @endif
+                            <tr>
+                                <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Shipping:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->shipping, 0) }}</td>
+                            </tr>
+                            @if($order->discount > 0)
+                            <tr>
+                                <td style="padding-bottom: 8px; color: #10b981; font-size: 14px;">Discount:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #10b981; text-align: right; font-size: 14px;">-₹{{ number_format($order->discount, 0) }}</td>
+                            </tr>
+                            @endif
+                            <tr>
+                                <td style="padding-top: 15px; border-top: 2px solid #f0f0f0; font-weight: 800; color: #a91b43; font-size: 18px;">TOTAL:</td>
+                                <td style="padding-top: 15px; border-top: 2px solid #f0f0f0; font-weight: 800; color: #a91b43; text-align: right; font-size: 24px;">₹{{ number_format($order->grand_total, 0) }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
 
             @if(!$isForAdmin)
             <center>
