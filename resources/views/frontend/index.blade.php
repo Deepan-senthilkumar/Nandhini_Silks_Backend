@@ -397,16 +397,23 @@
         }
 
         .collection-cta {
-            width: 90px;
-            height: 28px;
+            width: auto;
+            min-width: 110px;
+            height: 32px;
             border-radius: 8px;
             background: #f3a349;
             color: #ffffff;
-            font-size: 16px;
-            font-weight: 300;
-            text-decoration: underline;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
             box-shadow: none;
             transition: opacity 0.3s;
+            border: none;
+            cursor: pointer;
         }
 
         .collection-cta:hover {
@@ -416,8 +423,27 @@
         }
 
         .featured-name {
-            min-height: 10px;
-            margin-bottom: 6px !important;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            word-break: break-all;
+            overflow: hidden;
+            min-height: 2.4em;
+            margin-bottom: 4px !important;
+        }
+
+        .read-more-link {
+            display: inline-block;
+            font-size: 12px;
+            color: #927541;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .read-more-link:hover {
+            text-decoration: underline;
         }
 
         .featured-footer {
@@ -1177,6 +1203,10 @@
             box-sizing: border-box;
             text-align: left !important;
             margin-bottom: 0 !important;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         @media (min-width: 641px) {
@@ -1561,8 +1591,7 @@
                                         <h3 class="collection-name">{{ $sub->name }}</h3>
                                     </a>
                                     <button class="collection-cta" type="button"
-                                        onclick="window.location.href='{{ route('category.show', $sub->slug) }}'">Shop
-                                        Now</button>
+                                        onclick="window.location.href='{{ route('category.show', $sub->slug) }}'">Shop Now</button>
                                 </article>
                             </div>
                         @empty
@@ -1611,7 +1640,8 @@
                                                 @endif
                                                 
                                             </div>
-                                            <h3 class="featured-name">{{ $product->name }}</h3>
+                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
+                                            {{-- <span class="read-more-link">Read More...</span> --}}
                                         </a>
                                         @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                         <div class="featured-footer">
@@ -1686,7 +1716,8 @@
                                                     <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
                                                 @endif
                                             </div>
-                                            <h3 class="featured-name">{{ $product->name }}</h3>
+                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
+                                            <span class="read-more-link">Read More...</span>
                                         </a>
                                         @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                         <div class="featured-footer">

@@ -55,7 +55,44 @@ class FrontendController extends Controller
 
     public function shop()
     {
-        $products = Product::where('status', '=', 1)->paginate(12);
+        $query = Product::where('status', '=', 1);
+
+        // Filter by categories if selected (Multi-select)
+        if (request('categories')) {
+            $query->whereIn('category_id', (array)request('categories'));
+        }
+
+        // Apply shared sidebar filters
+        if (request('min_price') !== null && request('min_price') !== '') {
+            $query->where('price', '>=', (float) request('min_price'));
+        }
+        if (request('max_price') !== null && request('max_price') !== '') {
+            $query->where('price', '<=', (float) request('max_price'));
+        }
+
+        if (request('attr')) {
+            foreach (request('attr') as $attr_id => $values) {
+                $query->where(function($q) use ($attr_id, $values) {
+                    foreach ($values as $val_id) {
+                        $q->orWhereJsonContains('attributes->' . $attr_id, (int) $val_id)
+                          ->orWhereJsonContains('attributes->' . $attr_id, (string) $val_id);
+                    }
+                });
+            }
+        }
+
+        if (request('in_stock')) {
+            $query->where('stock_quantity', '>', 0);
+        }
+
+        // Sorting
+        $sort = request('sort', 'popularity');
+        if ($sort == 'price_low')  $query->orderBy('price', 'asc');
+        elseif ($sort == 'price_high') $query->orderBy('price', 'desc');
+        elseif ($sort == 'newest')     $query->orderBy('created_at', 'desc');
+        else                           $query->orderBy('id', 'desc');
+
+        $products = $query->paginate(12)->appends(request()->query());
         $category = new Category(['name' => 'Shop']);
         $filterData = $this->getFilterData();
 
@@ -168,11 +205,18 @@ class FrontendController extends Controller
         $recentlyViewed = Product::whereIn('id', array_diff($viewedIds, [$product->id]))
             ->where('status', 1)->limit(4)->get();
 
-        $relatedProducts = Product::where('category_id', '=', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->where('status', '=', 1)
-            ->limit(4)
-            ->get();
+        $relatedProductIds = $product->related_products;
+        if (!empty($relatedProductIds) && is_array($relatedProductIds)) {
+            $relatedProducts = Product::whereIn('id', $relatedProductIds)
+                ->where('status', '=', 1)
+                ->get();
+        } else {
+            $relatedProducts = Product::where('category_id', '=', $product->category_id)
+                ->where('id', '!=', $product->id)
+                ->where('status', '=', 1)
+                ->limit(4)
+                ->get();
+        }
 
         $attributeGroups = $this->buildAttributeGroups($product);
         $inWishlist = in_array($product->id, session()->get('wishlist', []));
@@ -535,6 +579,7 @@ class FrontendController extends Controller
         ]);
 
         $review = \App\Models\ProductReview::where('id', '=', $id)->where('user_id', '=', Auth::id())->firstOrFail();
+        $data['status'] = 0;
         $review->update($data);
         return back()->with('success', 'Review updated successfully.');
     }
@@ -575,7 +620,7 @@ class FrontendController extends Controller
             ]
         );
 
-        return back()->with('success', 'Your review has been submitted and is awaiting approval.');
+        return back()->with('success', 'Your review has been submitted.');
     }
 
     private function getFilterData(string $browsingType = null, int $browsingId = null): array
