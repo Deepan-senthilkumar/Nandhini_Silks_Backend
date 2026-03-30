@@ -644,19 +644,59 @@ class CartController extends Controller
     private function getRazorpayCredentials(): array
     {
         $envPath = base_path('.env');
-        $lines   = file_exists($envPath) ? file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
         $parsed  = [];
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#')) continue;
-            if (str_contains($line, '=')) {
-                [$k, $v] = explode('=', $line, 2);
-                $parsed[trim($k)] = trim($v, " \t\n\r\0\x0B");
+        if (file_exists($envPath)) {
+            $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                $line = trim($line);
+                // Skip empty lines or comments
+                if ($line === '' || str_starts_with($line, '#')) continue;
+                
+                if (str_contains($line, '=')) {
+                    [$k, $v] = explode('=', $line, 2);
+                    $key = trim($k);
+                    $val = trim($v);
+                    
+                    // Strip inline comments if any (simple approach)
+                    if (str_contains($val, ' #')) {
+                       $val = trim(explode(' #', $val)[0]);
+                    }
+                    
+                    // Strip quotes if any
+                    if (str_starts_with($val, '"') && str_ends_with($val, '"')) {
+                        $val = trim($val, '"');
+                    } elseif (str_starts_with($val, "'") && str_ends_with($val, "'")) {
+                        $val = trim($val, "'");
+                    }
+                    
+                    $parsed[$key] = $val;
+                }
             }
         }
+        // Priority 1: Direct file read (bypasses cache)
+        $fileKey = $parsed['RAZORPAY_KEY'] ?? null;
+        $fileSecret = $parsed['RAZORPAY_SECRET'] ?? null;
+        
+        // Priority 2: config (loaded from env)
+        $configKey = config('services.razorpay.key');
+        $configSecret = config('services.razorpay.secret');
+        
+        // Priority 3: direct env() (as a last resort)
+        $envKey = env('RAZORPAY_KEY');
+        $envSecret = env('RAZORPAY_SECRET');
+        
+        $key = $fileKey ?: ($configKey ?: $envKey);
+        $secret = $fileSecret ?: ($configSecret ?: $envSecret);
+        
+        Log::info('Razorpay Credentials Check:', [
+            'key_found_in' => $fileKey ? 'file' : ($configKey ? 'config' : ($envKey ? 'env_function' : 'NOT FOUND')),
+            'key_prefix' => $key ? substr($key, 0, 9) : 'NULL',
+            'secret_len' => $secret ? strlen($secret) : 0
+        ]);
+
         return [
-            'key'    => $parsed['RAZORPAY_KEY']    ?? config('services.razorpay.key'),
-            'secret' => $parsed['RAZORPAY_SECRET'] ?? config('services.razorpay.secret'),
+            'key'    => $key,
+            'secret' => $secret,
         ];
     }
 
