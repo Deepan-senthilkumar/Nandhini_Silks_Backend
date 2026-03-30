@@ -40,10 +40,11 @@ class AttributeController extends Controller
     {
         $request->validate([
             'group' => 'nullable|string|max:255',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:attributes,name',
             'slug' => 'required|string|max:255|unique:attributes,slug',
             'status' => 'required|boolean',
         ], [
+            'name.unique' => 'This Attribute Name is already in use.',
             'slug.unique' => 'This Attribute Slug is already in use. Please choose a different one.',
         ]);
 
@@ -63,10 +64,11 @@ class AttributeController extends Controller
     {
         $request->validate([
             'group' => 'nullable|string|max:255',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:attributes,name,' . $attribute->id,
             'slug' => 'required|string|max:255|unique:attributes,slug,' . $attribute->id,
             'status' => 'required|boolean',
         ], [
+            'name.unique' => 'This Attribute Name is already in use.',
             'slug.unique' => 'This Attribute Slug is already in use. Please choose a different one.',
         ]);
 
@@ -90,7 +92,7 @@ class AttributeController extends Controller
             $slug = Str::slug($request->slug);
         }
 
-        $query = Attribute::where('slug', $slug);
+        $query = Attribute::where('slug', '=', $slug);
         if ($request->filled('id')) {
             $query->where('id', '!=', $request->id);
         }
@@ -105,7 +107,7 @@ class AttributeController extends Controller
     public function checkName(Request $request)
     {
         $name = $request->name;
-        $query = Attribute::where('name', $name);
+        $query = Attribute::where('name', '=', $name);
         if ($request->filled('id')) {
             $query->where('id', '!=', $request->id);
         }

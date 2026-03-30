@@ -74,7 +74,7 @@
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
                     <th class="pb-3 px-2 font-bold text-center w-16">S.No</th>
                     <th class="pb-3 px-2 font-bold text-center w-20">Image</th>
-                    <th class="pb-3 font-bold text-center w-40">Details</th>
+                    <th class="pb-3 font-bold text-center w-40">Category</th>
                     <th class="pb-3 font-bold text-center w-16">Order</th>
                     <th class="pb-3 font-bold text-center w-16">Status</th>
                     <th class="pb-3 font-bold text-center w-16">In Menu</th>

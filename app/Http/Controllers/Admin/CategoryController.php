@@ -37,7 +37,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:categories,name',
             'slug' => 'required|string|max:255|unique:categories,slug',
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
@@ -48,6 +48,7 @@ class CategoryController extends Controller
             'display_order' => 'required|integer|min:0',
             'show_in_menu' => 'nullable',
         ], [
+            'name.unique' => 'This Category Name is already in use.',
             'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
         ]);
 
@@ -73,7 +74,7 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'slug' => 'required|string|max:255|unique:categories,slug,' . $category->id,
             'image' => ($category->image ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
@@ -84,6 +85,7 @@ class CategoryController extends Controller
             'display_order' => 'required|integer|min:0',
             'show_in_menu' => 'nullable',
         ], [
+            'name.unique' => 'This Category Name is already in use.',
             'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
         ]);
 

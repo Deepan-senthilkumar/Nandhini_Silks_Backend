@@ -41,7 +41,7 @@ class ChildCategoryController extends Controller
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'sub_category_id' => 'required|exists:sub_categories,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:child_categories,name',
             'slug' => 'required|string|max:255|unique:child_categories,slug',
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
@@ -51,6 +51,7 @@ class ChildCategoryController extends Controller
             'status' => 'required',
             'display_order' => 'required|integer|min:0',
         ], [
+            'name.unique' => 'This Child Category Name is already in use.',
             'slug.unique' => 'This Child Category Slug is already in use. Please choose a different one.',
         ]);
 
@@ -79,7 +80,7 @@ class ChildCategoryController extends Controller
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'sub_category_id' => 'required|exists:sub_categories,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:child_categories,name,' . $childCategory->id,
             'slug' => 'required|string|max:255|unique:child_categories,slug,' . $childCategory->id,
             'image' => ($childCategory->image ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
@@ -89,6 +90,7 @@ class ChildCategoryController extends Controller
             'status' => 'required',
             'display_order' => 'required|integer|min:0',
         ], [
+            'name.unique' => 'This Child Category Name is already in use.',
             'slug.unique' => 'This Child Category Slug is already in use. Please choose a different one.',
         ]);
 

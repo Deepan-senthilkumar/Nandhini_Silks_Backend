@@ -39,7 +39,7 @@ class SubCategoryController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:sub_categories,name',
             'slug' => 'required|string|max:255|unique:sub_categories,slug',
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
@@ -49,6 +49,7 @@ class SubCategoryController extends Controller
             'status' => 'required',
             'display_order' => 'required|integer|min:0',
         ], [
+            'name.unique' => 'This Sub Category Name is already in use.',
             'slug.unique' => 'This Sub Category Slug is already in use. Please choose a different one.',
         ]);
 
@@ -75,7 +76,7 @@ class SubCategoryController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:sub_categories,name,' . $subCategory->id,
             'slug' => 'required|string|max:255|unique:sub_categories,slug,' . $subCategory->id,
             'image' => ($subCategory->image ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
@@ -85,6 +86,7 @@ class SubCategoryController extends Controller
             'status' => 'required',
             'display_order' => 'required|integer|min:0',
         ], [
+            'name.unique' => 'This Sub Category Name is already in use.',
             'slug.unique' => 'This Sub Category Slug is already in use. Please choose a different one.',
         ]);
 
