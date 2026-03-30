@@ -84,7 +84,6 @@
                                     <div class="font-bold text-slate-800">{{ $address->recipient_name }}</div>
                                     <div class="text-[10px] text-slate-500 mb-1 tracking-tighter">{{ $address->recipient_phone }}</div>
                                     {{ $address->address1 }}<br>
-                                    @if($address->address2){{ $address->address2 }}<br>@endif
                                     {{ $address->city }}, {{ $address->state }} {{ $address->zip }}<br>
                                     {{ $address->country }}<br>
                                     @if($address->landmark)<span class="text-slate-400">Landmark: {{ $address->landmark }}</span>@endif

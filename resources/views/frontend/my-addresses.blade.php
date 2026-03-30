@@ -46,7 +46,7 @@
                             <h3 class="address-name-v3">{{ $addr->recipient_name ?? optional(Auth::user())->name }} ({{ $addr->label }})</h3>
                             <div class="address-details-v3">
                                 <span class="addr-street">{{ $addr->address1 }}</span><br>
-                                @if($addr->address2)<span class="addr-street">{{ $addr->address2 }}</span><br>@endif
+
                                 <span class="addr-city-state">{{ $addr->city }}, {{ $addr->state }} - {{ $addr->zip }}</span><br>
                                 <span class="addr-country">{{ $addr->country }}</span><br>
                                 Phone: <span class="addr-phone">{{ $addr->recipient_phone ?? optional(Auth::user())->phone }}</span>

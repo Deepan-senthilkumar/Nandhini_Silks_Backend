@@ -25,7 +25,7 @@
 <body>
     <div class="alert-card">
         <div class="header">
-            <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 8px; border-radius: 10px; margin-bottom: 12px;">
+            <img src="{{ isset($message) ? $message->embed(public_path('images/nandhini-logo.png')) : asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 8px; border-radius: 10px; margin-bottom: 12px;">
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
                     <td align="center">

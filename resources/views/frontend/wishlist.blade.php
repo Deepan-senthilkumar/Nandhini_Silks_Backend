@@ -51,8 +51,8 @@
                         <div class="account-avatar">
                             <img src="{{ asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
-                        <h2 class="account-user-name">John Doe</h2>
-                        <p class="account-user-email">john.doe@example.com</p>
+                        <h2 class="account-user-name">{{ Auth::user()->name }}</h2>
+                        <p class="account-user-email">{{ Auth::user()->email }}</p>
                     </div>
 
                     <ul class="account-nav">
@@ -99,10 +99,10 @@
                                     <p class="product-price-v2">&#8377;{{ number_format($product->price, 0) }}</p>
                                 </div>
                             </a>
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="wishlist-cart-form">
-                                @csrf
-                                <button type="submit" class="add-to-cart-v2">Add to Cart</button>
-                            </form>
+                            <a href="{{ route('product.show', $product->slug) }}" class="add-to-cart-v2" 
+                               style="text-decoration: none; display: flex; align-items: center; justify-content: center; background: #A91B43; color: white; border-radius: 8px; height: 44px; font-weight: 600; font-size: 14px; margin-top: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                               View Details
+                            </a>
                         </article>
                         @endforeach
                     </div>

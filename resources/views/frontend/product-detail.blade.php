@@ -3065,10 +3065,7 @@
                         // Update local tracking
                         updateLocalCartQuantity(increment);
                     } else {
-                        toastr.error(data.message || 'Error updating cart.');
-                        // Revert local UI if failed? 
-                        // For now we just stay as is.
-                        location.reload(); // Safer to sync from server
+                        toastr.error(data.message || 'Error updating cart.', {timeOut: 15000});
                     }
                 })
                 .catch(error => {

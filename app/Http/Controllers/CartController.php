@@ -70,7 +70,11 @@ class CartController extends Controller
 
         if ($isVariant && !empty($attributes)) {
             foreach ($product->product_variants as $v) {
-                $combination = is_string($v->combination) ? json_decode($v->combination, true) : $v->combination;
+                $combination = $v->combination;
+                if (is_string($combination)) {
+                    $combination = json_decode($combination, true);
+                }
+                $combination = (array)$combination;
                 $match = true;
                 foreach ($attributes as $aid => $avid) {
                     if (!isset($combination[$aid]) || !in_array((int)$avid, (array)$combination[$aid])) {
@@ -93,7 +97,16 @@ class CartController extends Controller
         }
 
         // 3. Stock Check
-        $availableStock = $isVariant ? ($matchedVariant ? $matchedVariant->stock_quantity : 0) : $product->stock_quantity;
+        $availableStock = $isVariant ? ($matchedVariant ? (int)$matchedVariant->stock_quantity : 0) : (int)$product->stock_quantity;
+        
+        Log::info('ADD TO CART CHECK:', [
+            'product_id' => $product->id,
+            'is_variant' => $isVariant,
+            'variant_id' => $matchedVariant ? $matchedVariant->id : null,
+            'available_stock' => $availableStock,
+            'request_qty' => $quantity
+        ]);
+
         if ($availableStock <= 0) {
             return $this->errorResponse('This product/variation is out of stock.', $request);
         }
@@ -623,56 +636,126 @@ class CartController extends Controller
         }
     }
 
+    /**
+     * Always read Razorpay credentials fresh from the .env file on disk.
+     * This bypasses both the config cache and the process environment
+     * (so php artisan serve does NOT need to be restarted after .env changes).
+     */
+    private function getRazorpayCredentials(): array
+    {
+        $envPath = base_path('.env');
+        $lines   = file_exists($envPath) ? file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
+        $parsed  = [];
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, '#')) continue;
+            if (str_contains($line, '=')) {
+                [$k, $v] = explode('=', $line, 2);
+                $parsed[trim($k)] = trim($v, " \t\n\r\0\x0B");
+            }
+        }
+        return [
+            'key'    => $parsed['RAZORPAY_KEY']    ?? config('services.razorpay.key'),
+            'secret' => $parsed['RAZORPAY_SECRET'] ?? config('services.razorpay.secret'),
+        ];
+    }
+
     private function processRazorpay(Order $order)
     {
-        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        $creds = $this->getRazorpayCredentials();
+        $api   = new Api($creds['key'], $creds['secret']);
+
+        Log::info('Razorpay processRazorpay — Key: ' . substr($creds['key'], 0, 12) . '... Secret len: ' . strlen($creds['secret']));
+
         $razorOrder = $api->order->create([
-            'receipt' => (string) $order->id,
-            'amount' => (int) ($order->grand_total * 100),
+            'receipt'  => (string) $order->id,
+            'amount'   => (int) ($order->grand_total * 100),
             'currency' => 'INR'
         ]);
 
-        $order->update(['payment_id' => $razorOrder['id']]);
+        $razorOrderId = $razorOrder['id'];
+
+        // Use DB::table for a guaranteed, direct UPDATE (bypasses model caching)
+        DB::table('orders')
+            ->where('id', $order->id)
+            ->update(['payment_id' => $razorOrderId, 'updated_at' => now()]);
+
+        // Verify it was actually saved
+        $saved = DB::table('orders')->where('id', $order->id)->value('payment_id');
+        Log::info('Razorpay processRazorpay — Saved payment_id in DB: ' . ($saved ?? 'NULL'));
+
+        if ($saved !== $razorOrderId) {
+            Log::error('Razorpay processRazorpay — payment_id DID NOT save! Expected: ' . $razorOrderId . ' Got: ' . ($saved ?? 'NULL'));
+            throw new \RuntimeException('Failed to save payment_id to order.');
+        }
+
+        // Reload order so verifyRazorpay can find it later
+        $order = Order::find($order->id);
 
         return view('frontend.razorpay-payment', compact('order', 'razorOrder'));
     }
 
     public function verifyRazorpay(Request $request)
     {
+        $creds  = $this->getRazorpayCredentials();
+        $key    = $creds['key'];
+        $secret = $creds['secret'];
+
+        Log::info('Razorpay Verify — Key: ' . substr($key, 0, 12) . '... Secret len: ' . strlen($secret));
+        Log::info('Razorpay Verify — order_id: '   . $request->razorpay_order_id);
+        Log::info('Razorpay Verify — payment_id: ' . $request->razorpay_payment_id);
+        Log::info('Razorpay Verify — signature: '  . $request->razorpay_signature);
+
+        // Confirm the order exists BEFORE even verifying signature
+        $order = Order::where('payment_id', $request->razorpay_order_id)->first();
+        Log::info('Razorpay Verify — DB lookup: ' . ($order ? 'Found order #' . $order->id : 'NOT FOUND'));
+
+        if (!$order) {
+            // Fallback: maybe payment_id wasn't saved — try to find by DB directly
+            $orderId = DB::table('orders')
+                ->where('payment_id', $request->razorpay_order_id)
+                ->value('id');
+            Log::info('Razorpay Verify — Fallback DB lookup order id: ' . ($orderId ?? 'NULL'));
+            if ($orderId) {
+                $order = Order::find($orderId);
+            }
+        }
+
         $signatureStatus = true;
-        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        $api = new Api($key, $secret);
 
         try {
-            $attributes = [
-                'razorpay_order_id' => $request->razorpay_order_id,
+            $api->utility->verifyPaymentSignature([
+                'razorpay_order_id'   => $request->razorpay_order_id,
                 'razorpay_payment_id' => $request->razorpay_payment_id,
-                'razorpay_signature' => $request->razorpay_signature
-            ];
-            $api->utility->verifyPaymentSignature($attributes);
+                'razorpay_signature'  => $request->razorpay_signature,
+            ]);
+            Log::info('Razorpay Verify — Signature OK ✅');
         } catch (\Exception $e) {
+            Log::error('Razorpay Verify — Signature FAILED: ' . $e->getMessage());
             $signatureStatus = false;
         }
 
-        if ($signatureStatus) {
-            $order = Order::where('payment_id', $request->razorpay_order_id)->first();
-            if ($order) {
-                $order->update(['payment_status' => 'paid', 'order_status' => 'processing']);
-                
-                // Clear cart for the authenticated user (payment verified)
-                if (Auth::check()) {
-                    \App\Models\CartItem::where('user_id', Auth::id())->delete();
-                }
-                session()->forget(['cart', 'coupon_id']);
-                
-                // Send order success emails
-                $this->sendOrderEmails($order);
-                
-                return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful! Your order is confirmed. 🎉');
+        if ($signatureStatus && $order) {
+            $order->update(['payment_status' => 'paid', 'order_status' => 'processing']);
+
+            if (Auth::check()) {
+                \App\Models\CartItem::where('user_id', Auth::id())->delete();
             }
+            session()->forget(['cart', 'coupon_id']);
+
+            $this->sendOrderEmails($order);
+
+            return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful! Your order is confirmed. 🎉');
+        }
+
+        if (!$order) {
+            Log::error('Razorpay Verify — Order not found for payment_id: ' . $request->razorpay_order_id);
         }
 
         return redirect()->route('checkout')->with('error', 'Payment failed or signature mismatch.');
     }
+
 
     public function orderConfirmation(Order $order = null)
     {

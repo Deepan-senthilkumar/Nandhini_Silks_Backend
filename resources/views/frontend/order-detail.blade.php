@@ -610,12 +610,12 @@
                 </div>
                 <div class="timeline-step {{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'completed' : ($order->order_status == 'pending' ? 'active' : '') }}">
                     <div class="step-icon">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? '✓' : '●' }}</div>
-                    <span class="step-label">Confirmed</span>
+                    <span class="step-label">Processing</span>
                     <span class="step-date">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'Done' : 'Pending' }}</span>
                 </div>
                 <div class="timeline-step {{ in_array($order->order_status, ['dispatched', 'delivered']) ? 'completed' : ($order->order_status == 'processing' ? 'active' : '') }}">
                     <div class="step-icon">{{ in_array($order->order_status, ['dispatched', 'delivered']) ? '✓' : '●' }}</div>
-                    <span class="step-label">Shipped</span>
+                    <span class="step-label">Dispatched</span>
                     <span class="step-date">{{ $order->order_status == 'dispatched' || $order->order_status == 'delivered' ? 'Done' : 'Processing' }}</span>
                 </div>
                 <div class="timeline-step {{ $order->order_status == 'delivered' ? 'completed' : '' }}">

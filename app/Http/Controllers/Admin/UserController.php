@@ -106,7 +106,62 @@ class UserController extends Controller
 
     public function storeAddress(Request $request, User $user)
     {
-        $request->validate([
+        $this->validateAddress($request);
+
+        $isDefault = $request->boolean('is_default');
+        if ($isDefault || $user->addresses()->count() === 0) {
+            $isDefault = true;
+            $user->addresses()->update(['is_default' => false]);
+        }
+
+        $user->addresses()->create([
+            'label' => $request->input('label'),
+            'recipient_name' => $request->input('recipient_name'),
+            'recipient_phone' => $request->input('recipient_phone'),
+            'address1' => $request->input('address1'),
+            'city' => $request->input('city'),
+            'state' => $request->input('state'),
+            'zip' => $request->input('zip'),
+            'country' => $request->input('country'),
+            'landmark' => $request->input('landmark'),
+            'is_default' => $isDefault,
+        ]);
+
+        return redirect()->route('admin.users.edit', $user->id)->with('success', 'Address added.');
+    }
+
+    public function updateAddress(Request $request, User $user, UserAddress $address)
+    {
+        if ($address->user_id !== $user->id) {
+            return redirect()->route('admin.users.edit', $user->id)->with('error', 'Address not found.');
+        }
+
+        $this->validateAddress($request);
+
+        $isDefault = $request->boolean('is_default');
+        if ($isDefault) {
+            $user->addresses()->update(['is_default' => false]);
+        }
+
+        $address->update([
+            'label' => $request->input('label'),
+            'recipient_name' => $request->input('recipient_name'),
+            'recipient_phone' => $request->input('recipient_phone'),
+            'address1' => $request->input('address1'),
+            'city' => $request->input('city'),
+            'state' => $request->input('state'),
+            'zip' => $request->input('zip'),
+            'country' => $request->input('country'),
+            'landmark' => $request->input('landmark'),
+            'is_default' => $isDefault,
+        ]);
+
+        return redirect()->route('admin.users.edit', $user->id)->with('success', 'Address updated.');
+    }
+
+    private function validateAddress(Request $request)
+    {
+        return $request->validate([
             'label' => 'nullable|string|max:50',
             'recipient_name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
             'recipient_phone' => 'required|string|regex:/^[0-9]{10}$/',
@@ -126,15 +181,6 @@ class UserController extends Controller
             'country.regex' => 'The Country field should only contain alphabets and spaces.',
             'zip.regex' => 'The ZIP code must be exactly 6 digits.',
         ]);
-
-        $isDefault = $request->boolean('is_default');
-        if ($isDefault) {
-            $user->addresses()->update(['is_default' => false]);
-        }
-
-        $user->addresses()->create($request->all());
-
-        return redirect()->route('admin.users.edit', $user->id)->with('success', 'Address added.');
     }
 
     public function destroyAddress(User $user, UserAddress $address)
