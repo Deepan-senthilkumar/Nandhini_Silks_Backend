@@ -3,9 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | Premium Portal</title>
+    <title>Admin Login</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/nandhini-logo.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<<<<<<< Updated upstream
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+=======
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"></script>
+>>>>>>> Stashed changes
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -31,7 +39,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<body class="min-h-screen flex items-center justify-center p-6 text-slate-900">
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
             <div class="flex justify-center mb-6">
@@ -41,18 +49,16 @@
             <p class="text-slate-500">Authorized Access Only</p>
         </div>
 
-        <div class="glass p-8 rounded-3xl shadow-2xl">
-            @if ($errors->any())
-                <div class="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl mb-6 text-sm">
-                    <ul class="list-disc list-inside">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+        <div class="glass p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+            {{-- Credential Mismatch Error Display at Top --}}
+            @if (Session::has('error'))
+                <div class="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-xl mb-6 text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>{{ Session::get('error') }}</span>
                 </div>
             @endif
 
-            <form action="{{ route('admin.login.post') }}" method="POST" class="space-y-6">
+            <form action="{{ route('admin.login.post') }}" method="POST" class="space-y-6" novalidate>
                 @csrf
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
@@ -68,15 +74,15 @@
                         placeholder="••••••••">
                 </div>
 
-                <div class="flex items-center justify-between text-sm">
+                <div class="flex items-center justify-between text-sm pt-1">
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" name="remember" class="w-4 h-4 rounded border-slate-300 text-[#a91b43] focus:ring-[#a91b43]">
-                        <span class="ml-2 text-slate-600">Remember me</span>
+                        <span class="ml-2 text-slate-600 font-medium">Remember me</span>
                     </label>
                 </div>
 
                 <button type="submit"
-                    class="w-full bg-[#a91b43] hover:bg-[#940437] text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-pink-900/10 active:scale-[0.98]">
+                    class="w-full bg-[#a91b43] hover:bg-[#940437] text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-pink-900/10 active:scale-[0.98] mt-2">
                     Sign In
                 </button>
             </form>
