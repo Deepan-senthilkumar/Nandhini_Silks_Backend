@@ -7,13 +7,10 @@
     <link rel="icon" type="image/png" href="{{ asset('images/nandhini-logo.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<<<<<<< Updated upstream
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-=======
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"></script>
->>>>>>> Stashed changes
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -61,17 +58,22 @@
             <form action="{{ route('admin.login.post') }}" method="POST" class="space-y-6" novalidate>
                 @csrf
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
-                    <input type="email" name="email" value="{{ old('email') }}" required
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Email Address <span style="color: red;">*</span> </label>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required
                         class="w-full bg-white border border-slate-200 text-slate-900 px-4 py-3 rounded-xl outline-none transition-all input-focus"
-                        placeholder="admin@nandhinisilks.com">
+                        placeholder="Enter your email">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Password</label>
-                    <input type="password" name="password" required
-                        class="w-full bg-white border border-slate-200 text-slate-900 px-4 py-3 rounded-xl outline-none transition-all input-focus"
-                        placeholder="••••••••">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Password <span style="color: red;">*</span> </label>
+                    <div class="relative">
+                        <input type="password" id="password" name="password" required
+                            class="w-full bg-white border border-slate-200 text-slate-900 px-4 py-3 rounded-xl outline-none transition-all input-focus"
+                            placeholder="Enter your Password">
+                        <button type="button" id="togglePassword" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#a91b43] transition-colors">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-between text-sm pt-1">
@@ -86,11 +88,66 @@
                     Sign In
                 </button>
             </form>
-        </div>
-
         <p class="text-center mt-8 text-slate-500 text-sm">
             &copy; {{ date('Y') }} Premium Admin Panel. All rights reserved.
         </p>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            // Password Visibility Toggle
+            $('#togglePassword').click(function() {
+                const passwordInput = $('#password');
+                const eyeIcon = $('#eyeIcon');
+                
+                if (passwordInput.attr('type') === 'password') {
+                    passwordInput.attr('type', 'text');
+                    eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    passwordInput.attr('type', 'password');
+                    eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+            });
+
+            // Form Validation
+            $('form').validate({
+                rules: {
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 6
+                    }
+                },
+                messages: {
+                    email: {
+                        required: "Please enter your email",
+                        email: "Please enter a valid email address"
+                    },
+                    password: {
+                        required: "Please enter your password",
+                        minlength: "Password must be at least 6 characters"
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function(error, element) {
+                    error.addClass('text-red-500 text-xs mt-1 block');
+                    if (element.parent().hasClass('relative')) {
+                        error.insertAfter(element.parent());
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+                highlight: function(element) {
+                    $(element).addClass('border-red-500').removeClass('border-slate-200');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('border-red-500').addClass('border-slate-200');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
