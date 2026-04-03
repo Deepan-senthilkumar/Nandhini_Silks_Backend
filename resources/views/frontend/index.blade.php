@@ -717,13 +717,10 @@
             /* ── Section spacing ── */
             /* ── Global Section Padding (Mobile) ── */
             .collection-section,
-            .category-section,
-            .featured-section {
-                margin-left: 0 !important;
-                margin-right: 0 !important;
+            .category-section {
+                padding-left: 45px !important;
+                padding-right: 45px !important;
                 margin-bottom: 30px;
-                width: 100% !important;
-                box-sizing: border-box;
             }
 
             .collection-section,
@@ -775,9 +772,8 @@
 
             .collection-name,
             .featured-name {
-                min-height: 44px !important;
-                font-size: 14px;
-                line-height: 1.3 !important;
+                min-height: auto;
+                font-size: 15px;
                 margin-top: 12px !important;
                 margin-bottom: 6px !important;
                 width: 100%;
@@ -1897,12 +1893,35 @@
                         prevEl: '.saree-collection-prev',
                     },
                     breakpoints: {
-                        320: { slidesPerView: 1, spaceBetween: 10 },
-                        540: { slidesPerView: 2, spaceBetween: 15 },
-                        992: { slidesPerView: 3, spaceBetween: 20 },
-                        1280: { slidesPerView: 4, spaceBetween: 24 },
+                        640: {
+                            slidesPerView: 2
+                        },
+                        768: {
+                            slidesPerView: 3
+                        },
+                        1024: {
+                            slidesPerView: 4
+                        },
+                        1280: {
+                            slidesPerView: 4
+                        },
                     }
                 });
+
+                const categoryWrapper = document.querySelector('.category-swiper .swiper-wrapper');
+                const originalCategorySlides = categoryWrapper ? Array.from(categoryWrapper.children) : [];
+
+                const originalCategoryCount = originalCategorySlides.length;
+
+                if (categoryWrapper && originalCategoryCount > 1) {
+                    while (categoryWrapper.children.length < Math.max(originalCategoryCount * 3, 18)) {
+                        originalCategorySlides.forEach((slide) => {
+                            const clone = slide.cloneNode(true);
+                            clone.classList.add('category-slide-clone');
+                            categoryWrapper.appendChild(clone);
+                        });
+                    }
+                }
 
                 const categorySlideCount = document.querySelectorAll('.category-swiper .swiper-slide').length;
                 const enableCategoryLoop = categorySlideCount > 6;
